@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Burger Palace - Catálogo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b35, #ff8e53);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .categories {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .category-btn {
+            background: white;
+            border: 2px solid #ff6b35;
+            color: #ff6b35;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: fit-content;
+        }
+
+        .category-btn.active {
+            background: #ff6b35;
+            color: white;
+        }
+
+        .products {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .product {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .product:hover {
+            transform: translateY(-2px);
+        }
+
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .product-info h3 {
+            color: #333;
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-info p {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff6b35;
+        }
+
+        .product-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .qty-btn {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .qty-btn:hover {
+            background: #e55a2b;
+        }
+
+        .qty-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .quantity {
+            font-size: 1.1rem;
+            font-weight: 600;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .cart-fixed {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 1rem;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            border-top: 3px solid #ff6b35;
+        }
+
+        .cart-content {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .cart-total {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .cart-items {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .order-btn {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .order-btn:hover {
+            background: #e55a2b;
+            transform: translateY(-1px);
+        }
+
+        .order-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal h2 {
+            color: #ff6b35;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #ff6b35;
+        }
+
+        .order-summary {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .order-summary h3 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .summary-total {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #ff6b35;
+            border-top: 2px solid #ff6b35;
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: #25d366;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .cart-counter {
+            background: #ff6b35;
+            color: white;
+            border-radius: 50%;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .container {
+                padding: 0.5rem;
+                margin-bottom: 120px;
+            }
+            
+            .product {
+                padding: 1rem;
+            }
+            
+            .modal-content {
+                margin: 5% auto;
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🍔 Burger Palace</h1>
+        <p>Las mejores hamburguesas de la ciudad</p>
+    </div>
+
+    <div class="container">
+        <div class="categories">
+            <button class="category-btn active" data-category="all">Todas</button>
+            <button class="category-btn" data-category="clasicas">Clásicas</button>
+            <button class="category-btn" data-category="gourmet">Gourmet</button>
+            <button class="category-btn" data-category="vegetarianas">Vegetarianas</button>
+            <button class="category-btn" data-category="acompañamientos">Acompañamientos</button>
+            <button class="category-btn" data-category="bebidas">Bebidas</button>
+        </div>
+
+        <div class="products" id="products-container">
+            <!-- Los productos se cargarán dinámicamente -->
+        </div>
+    </div>
+
+    <div class="cart-fixed" id="cart-fixed">
+        <div class="cart-content">
+            <div class="cart-info">
+                <div class="cart-total">Total: $<span id="cart-total">0</span></div>
+                <div class="cart-items"><span id="cart-count">0</span> productos</div>
+            </div>
+            <button class="order-btn" id="order-btn" disabled>Hacer Pedido</button>
+        </div>
+    </div>
+
+    <!-- Modal de pedido -->
+    <div class="modal" id="order-modal">
+        <div class="modal-content">
+            <h2>Completar Pedido</h2>
+            
+            <div class="order-summary" id="order-summary">
+                <h3>Resumen del pedido:</h3>
+                <!-- Se llenará dinámicamente -->
+            </div>
+
+            <form id="order-form">
+                <div class="form-group">
+                    <label for="customer-name">Nombre completo *</label>
+                    <input type="text" id="customer-name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="customer-phone">Número de teléfono *</label>
+                    <input type="tel" id="customer-phone" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="customer-email">Email</label>
+                    <input type="email" id="customer-email">
+                </div>
+            </form>
+
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+                <button class="btn-primary" onclick="sendWhatsApp()">Enviar por WhatsApp</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Base de datos de productos (en la implementación real esto vendría de Google Sheets)
+        const products = [
+            // Clásicas
+            {
+                id: 1,
+                name: "Hamburguesa Clásica",
+                description: "Carne de res, lechuga, tomate, cebolla, pepinillos y salsa especial",
+                price: 8.99,
+                category: "clasicas"
+            },
+            {
+                id: 2,
+                name: "Cheeseburger",
+                description: "Hamburguesa clásica con queso cheddar derretido",
+                price: 9.99,
+                category: "clasicas"
+            },
+            {
+                id: 3,
+                name: "Doble Carne",
+                description: "Doble carne de res con queso, lechuga y tomate",
+                price: 12.99,
+                category: "clasicas"
+            },
+            
+            // Gourmet
+            {
+                id: 4,
+                name: "BBQ Bacon",
+                description: "Carne de res, bacon crispy, cebolla caramelizada y salsa BBQ",
+                price: 15.99,
+                category: "gourmet"
+            },
+            {
+                id: 5,
+                name: "Truffle Burger",
+                description: "Carne premium, queso brie, rúcula y aceite de trufa",
+                price: 18.99,
+                category: "gourmet"
+            },
+            {
+                id: 6,
+                name: "Pulled Pork",
+                description: "Cerdo desmenuzado, coleslaw y salsa de mango",
+                price: 16.99,
+                category: "gourmet"
+            },
+            
+            // Vegetarianas
+            {
+                id: 7,
+                name: "Veggie Deluxe",
+                description: "Hamburguesa de lentejas, aguacate, tomate y sprouts",
+                price: 11.99,
+                category: "vegetarianas"
+            },
+            {
+                id: 8,
+                name: "Portobello",
+                description: "Hongo portobello grillado, queso de cabra y pesto",
+                price: 13.99,
+                category: "vegetarianas"
+            },
+            
+            // Acompañamientos
+            {
+                id: 9,
+                name: "Papas Fritas",
+                description: "Papas doradas y crujientes con sal marina",
+                price: 4.99,
+                category: "acompañamientos"
+            },
+            {
+                id: 10,
+                name: "Onion Rings",
+                description: "Aros de cebolla empanizados y fritos",
+                price: 5.99,
+                category: "acompañamientos"
+            },
+            {
+                id: 11,
+                name: "Sweet Potato Fries",
+                description: "Papas de camote horneadas con especias",
+                price: 6.99,
+                category: "acompañamientos"
+            },
+            
+            // Bebidas
+            {
+                id: 12,
+                name: "Coca Cola",
+                description: "Refrescante bebida cola (500ml)",
+                price: 2.99,
+                category: "bebidas"
+            },
+            {
+                id: 13,
+                name: "Agua Mineral",
+                description: "Agua mineral natural (500ml)",
+                price: 1.99,
+                category: "bebidas"
+            },
+            {
+                id: 14,
+                name: "Limonada Natural",
+                description: "Limonada fresca hecha en casa",
+                price: 3.99,
+                category: "bebidas"
+            }
+        ];
+
+        // Estado del carrito
+        let cart = {};
+        let currentCategory = 'all';
+
+        // Número de WhatsApp del negocio (cambiar por el real)
+        const whatsappNumber = '5491234567890';
+
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            renderProducts();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Categorías
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentCategory = this.dataset.category;
+                    renderProducts();
+                });
+            });
+
+            // Botón de pedido
+            document.getElementById('order-btn').addEventListener('click', openModal);
+        }
+
+        function renderProducts() {
+            const container = document.getElementById('products-container');
+            const filteredProducts = currentCategory === 'all' 
+                ? products 
+                : products.filter(p => p.category === currentCategory);
+
+            container.innerHTML = filteredProducts.map(product => `
+                <div class="product">
+                    <div class="product-header">
+                        <div class="product-info">
+                            <h3>${product.name}</h3>
+                            <p>${product.description}</p>
+                        </div>
+                        <div class="product-price">$${product.price.toFixed(2)}</div>
+                    </div>
+                    <div class="product-controls">
+                        <div class="quantity-controls">
+                            <button class="qty-btn" onclick="updateQuantity(${product.id}, -1)" ${!cart[product.id] ? 'disabled' : ''}>-</button>
+                            <span class="quantity">${cart[product.id] || 0}</span>
+                            <button class="qty-btn" onclick="updateQuantity(${product.id}, 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateQuantity(productId, change) {
+            if (!cart[productId]) cart[productId] = 0;
+            cart[productId] += change;
+            
+            if (cart[productId] <= 0) {
+                delete cart[productId];
+            }
+            
+            renderProducts();
+            updateCartDisplay();
+        }
+
+        function updateCartDisplay() {
+            const totalItems = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
+            const totalPrice = Object.entries(cart).reduce((sum, [id, qty]) => {
+                const product = products.find(p => p.id == id);
+                return sum + (product.price * qty);
+            }, 0);
+
+            document.getElementById('cart-count').textContent = totalItems;
+            document.getElementById('cart-total').textContent = totalPrice.toFixed(2);
+            document.getElementById('order-btn').disabled = totalItems === 0;
+        }
+
+        function openModal() {
+            const orderSummary = document.getElementById('order-summary');
+            const cartEntries = Object.entries(cart);
+            
+            if (cartEntries.length === 0) return;
+
+            let summaryHTML = '<h3>Resumen del pedido:</h3>';
+            let total = 0;
+
+            cartEntries.forEach(([id, qty]) => {
+                const product = products.find(p => p.id == id);
+                const subtotal = product.price * qty;
+                total += subtotal;
+                
+                summaryHTML += `
+                    <div class="summary-item">
+                        <span>${product.name} (x${qty})</span>
+                        <span>$${subtotal.toFixed(2)}</span>
+                    </div>
+                `;
+            });
+
+            summaryHTML += `
+                <div class="summary-item summary-total">
+                    <span>Total:</span>
+                    <span>$${total.toFixed(2)}</span>
+                </div>
+            `;
+
+            orderSummary.innerHTML = summaryHTML;
+            document.getElementById('order-modal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('order-modal').style.display = 'none';
+            document.getElementById('order-form').reset();
+        }
+
+        function sendWhatsApp() {
+            const name = document.getElementById('customer-name').value;
+            const phone = document.getElementById('customer-phone').value;
+            const email = document.getElementById('customer-email').value;
+
+            if (!name || !phone) {
+                alert('Por favor completa los campos obligatorios');
+                return;
+            }
+
+            // Construir mensaje para WhatsApp
+            let message = `🍔 *NUEVO PEDIDO - BURGER PALACE*\n\n`;
+            message += `👤 *Cliente:* ${name}\n`;
+            message += `📱 *Teléfono:* ${phone}\n`;
+            if (email) message += `📧 *Email:* ${email}\n`;
+            message += `\n📋 *PEDIDO:*\n`;
+
+            let total = 0;
+            Object.entries(cart).forEach(([id, qty]) => {
+                const product = products.find(p => p.id == id);
+                const subtotal = product.price * qty;
+                total += subtotal;
+                message += `• ${product.name} (x${qty}) - $${subtotal.toFixed(2)}\n`;
+            });
+
+            message += `\n💰 *TOTAL: $${total.toFixed(2)}*\n\n`;
+            message += `¡Gracias por tu pedido! Te contactaremos pronto para confirmar.`;
+
+            // Abrir WhatsApp
+            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+
+            // Limpiar carrito y cerrar modal
+            cart = {};
+            updateCartDisplay();
+            renderProducts();
+            closeModal();
+        }
+
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function(event) {
+            const modal = document.getElementById('order-modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
