@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>❌ Pago Fallido - Super Hot Dog</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-red: #dc2626;
+            --superhero-blue: #1e40af;
+            --super-yellow: #fbbf24;
+            --comic-shadow: 3px 3px 0px #000;
+            --white: #ffffff;
+            --light-gray: #f8fafc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: linear-gradient(45deg, #fee2e2, #dbeafe);
+            background-image: 
+                repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(220, 38, 38, 0.05) 10px, rgba(220, 38, 38, 0.05) 20px);
+            min-height: 100vh;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .failure-container {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.15);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 4px solid var(--primary-red);
+        }
+
+        .failure-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .failure-title {
+            font-family: 'Bangers', cursive;
+            font-size: 2.5rem;
+            color: var(--primary-red);
+            text-shadow: var(--comic-shadow);
+            margin-bottom: 1rem;
+            letter-spacing: 2px;
+        }
+
+        .failure-subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        .alternatives {
+            background: var(--light-gray);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            border: 2px solid #e2e8f0;
+        }
+
+        .alternatives h4 {
+            font-family: 'Bangers', cursive;
+            font-size: 1.3rem;
+            color: var(--primary-red);
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            border: 3px solid #000;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: none;
+            box-shadow: 0 4px 0 #000;
+            margin: 0.5rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 0 #000;
+        }
+
+        .btn-retry {
+            background: var(--super-yellow);
+            color: #000;
+            font-weight: 700;
+        }
+
+        .btn-whatsapp {
+            background: #25d366;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #64748b;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .failure-container {
+                padding: 2rem 1rem;
+                margin: 1rem;
+            }
+
+            .failure-title {
+                font-size: 2rem;
+            }
+
+            .btn {
+                display: block;
+                width: 100%;
+                margin: 0.5rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="failure-container">
+        <div class="failure-icon">😢</div>
+        <h1 class="failure-title">PAGO NO COMPLETADO</h1>
+        <p class="failure-subtitle">
+            No te preocupes, no se realizó ningún cargo a tu tarjeta.<br>
+            Puedes intentar nuevamente o pedir en efectivo.
+        </p>
+
+        <div class="alternatives">
+            <h4>🤔 ¿Qué puedes hacer?</h4>
+            <p>• Verificar los datos de tu tarjeta</p>
+            <p>• Intentar con otra tarjeta</p>
+            <p>• Pedir en efectivo por WhatsApp</p>
+        </div>
+
+        <div class="buttons">
+            <a href="index.html" class="btn btn-retry">
+                🔄 Intentar de nuevo
+            </a>
+            <a href="https://wa.me/5492944229764?text=Hola%20Super%20Hot%20Dog!%20Quiero%20hacer%20un%20pedido%20en%20efectivo%20🌭" 
+               target="_blank" class="btn btn-whatsapp">
+                💰 Pedir en efectivo
+            </a>
+            <a href="index.html" class="btn btn-secondary">
+                🏠 Volver al catálogo
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Limpiar datos del pedido fallido después de un tiempo
+        setTimeout(() => {
+            localStorage.removeItem('superdog_order');
+        }, 5000);
+    </script>
+</body>
+</html>

@@ -18,6 +18,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🌭 Super Hot Dog - Bariloche</title>
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
     <style>
         :root {
             --primary-red: #dc2626;
@@ -44,86 +45,77 @@
         }
 
         .header {
-            background: linear-gradient(135deg, var(--primary-red), #ef4444);
-            color: white;
-            padding: 1.5rem;
-            text-align: center;
+            background: url('assets/banner2.png') center center / cover no-repeat;
+            background-color: #fbbf24;
+            color: #333;
+            padding: 2rem 1.5rem;
             box-shadow: 0 8px 32px rgba(220, 38, 38, 0.3);
             position: relative;
             overflow: hidden;
+            min-height: 200px;
         }
 
-        .header::before {
-            content: "";
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: repeating-linear-gradient(
-                45deg,
-                transparent,
-                transparent 20px,
-                rgba(255,255,255,0.1) 20px,
-                rgba(255,255,255,0.1) 40px
-            );
-            animation: slide 20s linear infinite;
-        }
 
-        @keyframes slide {
-            0% { transform: translateX(-50px); }
-            100% { transform: translateX(50px); }
-        }
 
-        .header-content {
+        .header-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
             position: relative;
-            z-index: 2;
+        }
+
+
+
+        .logo-container {
+            flex-shrink: 0;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #000;
+            padding: 4px;
+            border: 6px solid #fff;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 0 2px #000;
+        }
+
+        .header-text {
+            flex-grow: 1;
         }
 
         .hero-title {
-            font-family: 'Bangers', cursive;
-            font-size: 3rem;
-            text-shadow: var(--comic-shadow);
+            font-family: 'Open Sans', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 3px 3px 0px #000, 2px 2px 8px rgba(0,0,0,0.5);
             margin-bottom: 0.5rem;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
         }
 
         .hero-subtitle {
-            font-size: 1.2rem;
-            font-weight: 600;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
             margin-bottom: 0.5rem;
-            text-shadow: 2px 2px 0px rgba(0,0,0,0.3);
         }
 
         .hero-location {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .refresh-btn {
-            background: var(--super-yellow);
-            color: #000;
-            border: 3px solid #000;
-            padding: 0.7rem 1.5rem;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            cursor: pointer;
-            text-shadow: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 0 #000;
-        }
 
-        .refresh-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 0 #000;
-        }
-
-        .refresh-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 0 #000;
-        }
 
         .container {
             max-width: 1000px;
@@ -485,18 +477,24 @@
             color: var(--primary-red);
         }
 
-        .form-group input {
+        .form-group input, .form-group textarea {
             width: 100%;
             padding: 1rem;
             border: 3px solid #e2e8f0;
             border-radius: 10px;
             font-size: 1rem;
             transition: border-color 0.3s ease;
+            font-family: 'Open Sans', sans-serif;
         }
 
-        .form-group input:focus {
+        .form-group input:focus, .form-group textarea:focus {
             outline: none;
             border-color: var(--primary-red);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
         }
 
         .modal-buttons {
@@ -508,6 +506,18 @@
 
         .btn-secondary {
             background: #64748b;
+            color: white;
+            border: 3px solid #000;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 700;
+            box-shadow: 0 3px 0 #000;
+            transition: all 0.2s ease;
+        }
+
+        .btn-payment {
+            background: #0099cc;
             color: white;
             border: 3px solid #000;
             padding: 0.8rem 1.5rem;
@@ -530,12 +540,23 @@
             transition: all 0.2s ease;
         }
 
-        .btn-secondary:hover, .btn-whatsapp:hover {
+        .btn-secondary:hover, .btn-payment:hover, .btn-whatsapp:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 0 #000;
         }
 
         @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                text-align: center;
+                gap: 1.5rem;
+            }
+            
+            .logo {
+                width: 100px;
+                height: 100px;
+            }
+            
             .hero-title {
                 font-size: 2rem;
             }
@@ -566,13 +587,18 @@
 </head>
 <body>
     <div class="header">
-        <div class="header-content">
-            <h1 class="hero-title">🌭 SUPER HOT DOG 🦸‍♂️</h1>
-            <p class="hero-subtitle">Los Hot Dogs más grandes de Bariloche 💥</p>
-            <p class="hero-location">📍 Av. Gallardo 1081, local 3 - Bariloche</p>
-            <button class="refresh-btn" onclick="refreshCatalog()">
-                🔄 ACTUALIZAR CATÁLOGO
-            </button>
+        <div class="header-container">
+            <div class="logo-container">
+                <img src="assets/logo-superhotdog.png" alt="Super Hot Dog Logo" class="logo">
+            </div>
+            <div class="header-text">
+                <h1 class="hero-title">Superhotdog</h1>
+                <p class="hero-subtitle">Los Hot Dogs más grandes de Bariloche</p>
+                <p class="hero-location">
+                    <span>📍</span>
+                    <span>Av. Gallardo 1081, local 3 - Bariloche</span>
+                </p>
+            </div>
         </div>
     </div>
 
@@ -620,19 +646,14 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="customer-phone">📱 Número de teléfono *</label>
-                    <input type="tel" id="customer-phone" required placeholder="+54 9 11 1234-5678">
-                </div>
-                
-                <div class="form-group">
-                    <label for="customer-email">📧 Email (opcional)</label>
-                    <input type="email" id="customer-email" placeholder="superhero@email.com">
+                    <label for="customer-notes">📝 Aclaraciones (opcional)</label>
+                    <textarea id="customer-notes" placeholder="Comentarios especiales, alergias, preferencias..." rows="3"></textarea>
                 </div>
             </form>
 
             <div class="modal-buttons">
                 <button class="btn-secondary" onclick="closeModal()">❌ Cancelar</button>
-                <button class="btn-whatsapp" onclick="sendWhatsApp()">📱 Enviar por WhatsApp</button>
+                <button class="btn-payment" onclick="goToPay()">💳 Ir a pagar</button>
             </div>
         </div>
     </div>
@@ -644,12 +665,16 @@
         const RANGE = 'Productos!A2:F'; // 📊 Rango de datos (A=Nombre, B=Descripción, C=Precio, D=Categoría, E=Imagen, F=Disponible)
         
         // 📞 CONFIGURACIÓN DEL NEGOCIO
-        const WHATSAPP_NUMBER = '5492944229764'; // ✅ WhatsApp actualizado
+        const WHATSAPP_NUMBER = '1121625416'; // ✅ WhatsApp actualizado
         const BUSINESS_INFO = {
             name: 'Super Hot Dog',
             address: 'Av. Gallardo 1081, local 3, Bariloche',
             instagram: '@superhotdogbrc'
         };
+        
+        // 💳 CONFIGURACIÓN MERCADOPAGO
+        const MP_PUBLIC_KEY = 'APP_USR-e51b4f22-3647-49d8-abe7-9ffefca4b7bc'; // ⚠️ Reemplazar con tu Public Key de MercadoPago
+        const mp = new MercadoPago(MP_PUBLIC_KEY);
         
         // 🌐 VARIABLES GLOBALES
         let products = [];
@@ -850,22 +875,119 @@
             document.getElementById('order-form').reset();
         }
 
-        // 📱 ENVIAR PEDIDO POR WHATSAPP
+        // 💳 IR A PAGAR CON MERCADOPAGO
+        async function goToPay() {
+            const name = document.getElementById('customer-name').value.trim();
+            const notes = document.getElementById('customer-notes').value.trim();
+
+            if (!name) {
+                alert('🚨 Por favor ingresa tu nombre');
+                return;
+            }
+
+            // 📝 Preparar items para MercadoPago
+            let items = [];
+            let total = 0;
+
+            Object.entries(cart).forEach(([id, qty]) => {
+                const product = products.find(p => p.id == id);
+                if (product) {
+                    const subtotal = product.price * qty;
+                    total += subtotal;
+                    
+                    items.push({
+                        id: id,
+                        title: product.name,
+                        description: product.description,
+                        quantity: qty,
+                        unit_price: product.price,
+                        currency_id: "ARS"
+                    });
+                }
+            });
+
+            // 💾 Guardar datos del pedido en localStorage para la página de éxito
+            const orderData = {
+                customerName: name,
+                customerNotes: notes,
+                items: items,
+                total: total,
+                timestamp: new Date().toISOString()
+            };
+            localStorage.setItem('superdog_order', JSON.stringify(orderData));
+
+            try {
+                // 🔄 Mostrar loading
+                document.querySelector('.btn-payment').innerHTML = '⏳ Preparando pago...';
+                document.querySelector('.btn-payment').disabled = true;
+
+                // 🛒 Crear preferencia de pago
+                const preference = {
+                    items: items,
+                    payer: {
+                        name: name,
+                        email: "cliente@superhotdog.com" // Email ficticio
+                    },
+                    back_urls: {
+                        success: window.location.origin + "/superhotdog/success.html",
+                        failure: window.location.origin + "/superhotdog/failure.html",
+                        pending: window.location.origin + "/superhotdog/pending.html"
+                    },
+                    auto_return: "approved",
+                    statement_descriptor: "Super Hot Dog"
+                };
+
+                // 🚀 CREAR PREFERENCIA CON NETLIFY FUNCTION
+                console.log('Creando preferencia con Netlify Function...');
+                
+                const response = await fetch('/.netlify/functions/create-preference', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(preference)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(`Error ${response.status}: ${errorData.message || response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log('Preferencia creada:', data);
+
+                if (!data.init_point) {
+                    throw new Error('No se recibió URL de pago de MercadoPago');
+                }
+
+                // 🚀 Redirigir al checkout de MercadoPago
+                console.log('Redirigiendo a MercadoPago:', data.init_point);
+                window.location.href = data.init_point;
+
+            } catch (error) {
+                console.error('Error creando preferencia:', error);
+                alert('❌ Error al procesar el pago. Inténtalo de nuevo.');
+                
+                // 🔄 Restaurar botón
+                document.querySelector('.btn-payment').innerHTML = '💳 Ir a pagar';
+                document.querySelector('.btn-payment').disabled = false;
+            }
+        }
+
+        // 📱 ENVIAR PEDIDO POR WHATSAPP (función auxiliar)
         function sendWhatsApp() {
             const name = document.getElementById('customer-name').value.trim();
-            const phone = document.getElementById('customer-phone').value.trim();
-            const email = document.getElementById('customer-email').value.trim();
+            const notes = document.getElementById('customer-notes').value.trim();
 
-            if (!name || !phone) {
-                alert('🚨 Por favor completa los campos obligatorios (Nombre y Teléfono)');
+            if (!name) {
+                alert('🚨 Por favor ingresa tu nombre');
                 return;
             }
 
             // 📝 Construir mensaje para WhatsApp
             let message = `🌭🦸‍♂️ *NUEVO PEDIDO - SUPER HOT DOG* 💥\n\n`;
             message += `👤 *Cliente:* ${name}\n`;
-            message += `📱 *Teléfono:* ${phone}\n`;
-            if (email) message += `📧 *Email:* ${email}\n`;
+            if (notes) message += `📝 *Aclaraciones:* ${notes}\n`;
             message += `\n📋 *PEDIDO:*\n`;
 
             let total = 0;

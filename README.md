@@ -14,10 +14,13 @@ Aplicación web de catálogo digital para **Super Hot Dog**, el negocio de hot d
 
 - 🦸‍♂️ **Temática de superhéroe** con diseño tipo cómic
 - 📊 **Conectado a Google Sheets** para gestión de productos en tiempo real
-- 🛒 **Carrito de compras** con envío automático a WhatsApp
-- 📱 **Totalmente responsive** - optimizado para móviles
-- ⚡ **Carga rápida** - aplicación web estática
-- 🔄 **Actualización en tiempo real** del catálogo
+- 💳 **Pagos con MercadoPago** - integración completa con Netlify Functions
+- 🛒 **Carrito de compras** inteligente con cantidades
+- 📱 **Comprobantes automáticos** por WhatsApp después del pago
+- 🌐 **Responsive design** - optimizado para móviles y desktop
+- ⚡ **Carga rápida** - aplicación web con backend serverless
+- 🔄 **Actualización en tiempo real** del catálogo desde Google Sheets
+- 🔧 **Backend profesional** con Netlify Functions (gratis)
 
 ## 🏪 Información del negocio
 
@@ -85,17 +88,36 @@ Asegúrate de que tu hoja de Google Sheets sea accesible:
 **Opción 2 - Privada:**
 - Comparte con la cuenta de servicio de tu proyecto de Google Cloud
 
-## 🚀 Despliegue en GitHub Pages
+## 🚀 Despliegue en Netlify (Recomendado)
 
-### Opción A: Automático (Recomendado)
+### ✅ **Netlify con Functions (Pagos automáticos)**
 
-1. Haz fork de este repositorio
-2. Ve a **Settings** → **Pages**
-3. Source: **Deploy from a branch**
-4. Branch: **main** / **(root)**
-5. Click **Save**
+1. **Sube a GitHub:**
+   ```bash
+   git add .
+   git commit -m "Super Hot Dog with Netlify Functions"
+   git push origin main
+   ```
 
-Tu app estará disponible en: `https://tuusuario.github.io/superhotdog/`
+2. **Conecta con Netlify:**
+   - Ve a [Netlify.com](https://netlify.com)
+   - "New site from Git" → Conectar repositorio
+   - Deploy automático ✅
+
+3. **Configurar variable de entorno:**
+   - Site settings → Environment variables
+   - Agregar: `MP_ACCESS_TOKEN` = Tu Access Token de MercadoPago
+
+4. **¡Listo!** Pagos reales funcionando
+
+### 📋 **Ver guía completa:** `NETLIFY_DEPLOYMENT_GUIDE.md`
+
+---
+
+## 🎯 **Alternativa: GitHub Pages (Solo frontend)**
+
+1. Settings → Pages → Deploy from branch → main
+2. Funciona para el catálogo, pagos requieren configuración manual
 
 ### Opción B: Manual
 
@@ -172,6 +194,28 @@ const BUSINESS_INFO = {
 ### WhatsApp no se abre
 - ✅ Verifica que el número incluya código de país: `54911234567890`
 - ✅ Confirma que WhatsApp esté instalado en el dispositivo
+
+## 🔧 **Netlify Functions**
+
+### **Funciones incluidas:**
+- ✅ `create-preference.js` - Crea preferencias de pago en MercadoPago
+- ✅ **CORS configurado** - Funciona desde cualquier dominio
+- ✅ **Manejo de errores** completo
+- ✅ **Logs detallados** para debugging
+
+### **Variables de entorno requeridas:**
+```
+MP_ACCESS_TOKEN = "TEST-1234567890-abcdef..." (tu Access Token de MercadoPago)
+```
+
+### **Endpoints:**
+```
+POST /.netlify/functions/create-preference
+- Crea una preferencia de pago
+- Devuelve: { preference_id, init_point }
+```
+
+---
 
 ## 📄 Licencia
 

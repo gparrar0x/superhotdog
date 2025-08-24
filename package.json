@@ -1,0 +1,29 @@
+{
+  "name": "superhotdog-mercadopago",
+  "version": "1.0.0",
+  "description": "Super Hot Dog - Catálogo con MercadoPago y Netlify Functions",
+  "main": "index.html",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'Static site, no build needed'",
+    "start": "python3 -m http.server 8000"
+  },
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  },
+  "keywords": [
+    "mercadopago", 
+    "hotdog", 
+    "restaurant", 
+    "payments", 
+    "netlify-functions"
+  ],
+  "author": "Super Hot Dog Bariloche",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

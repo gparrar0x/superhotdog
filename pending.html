@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⏳ Pago Pendiente - Super Hot Dog</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-red: #dc2626;
+            --superhero-blue: #1e40af;
+            --super-yellow: #fbbf24;
+            --comic-shadow: 3px 3px 0px #000;
+            --white: #ffffff;
+            --light-gray: #f8fafc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: linear-gradient(45deg, #fee2e2, #dbeafe);
+            background-image: 
+                repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(220, 38, 38, 0.05) 10px, rgba(220, 38, 38, 0.05) 20px);
+            min-height: 100vh;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .pending-container {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.15);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 4px solid var(--super-yellow);
+        }
+
+        .pending-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 50%, 100% { opacity: 1; }
+            25%, 75% { opacity: 0.5; }
+        }
+
+        .pending-title {
+            font-family: 'Bangers', cursive;
+            font-size: 2.5rem;
+            color: var(--super-yellow);
+            text-shadow: 2px 2px 0px #000;
+            margin-bottom: 1rem;
+            letter-spacing: 2px;
+        }
+
+        .pending-subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        .info-box {
+            background: rgba(251, 191, 36, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            border: 2px solid var(--super-yellow);
+        }
+
+        .info-box h4 {
+            font-family: 'Bangers', cursive;
+            font-size: 1.3rem;
+            color: var(--primary-red);
+            margin-bottom: 1rem;
+        }
+
+        .info-box p {
+            text-align: left;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn {
+            border: 3px solid #000;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: none;
+            box-shadow: 0 4px 0 #000;
+            margin: 0.5rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 0 #000;
+        }
+
+        .btn-whatsapp {
+            background: #25d366;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #64748b;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .pending-container {
+                padding: 2rem 1rem;
+                margin: 1rem;
+            }
+
+            .pending-title {
+                font-size: 2rem;
+            }
+
+            .btn {
+                display: block;
+                width: 100%;
+                margin: 0.5rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="pending-container">
+        <div class="pending-icon">⏳</div>
+        <h1 class="pending-title">PAGO PENDIENTE</h1>
+        <p class="pending-subtitle">
+            Tu pago está siendo procesado.<br>
+            En unos minutos recibirás la confirmación.
+        </p>
+
+        <div class="info-box">
+            <h4>📋 Información importante:</h4>
+            <p>• Los pagos con transferencia bancaria pueden demorar hasta 24 horas</p>
+            <p>• Los pagos en efectivo (Rapipago, Pago Fácil) se acreditan al día siguiente</p>
+            <p>• Te notificaremos por email cuando se confirme el pago</p>
+            <p>• Si tienes dudas, contáctanos por WhatsApp</p>
+        </div>
+
+        <div class="buttons">
+            <a href="https://wa.me/5492944229764?text=Hola!%20Tengo%20un%20pago%20pendiente%20y%20quería%20consultar%20el%20estado%20🌭" 
+               target="_blank" class="btn btn-whatsapp">
+                📱 Consultar estado por WhatsApp
+            </a>
+            <a href="index.html" class="btn btn-secondary">
+                🏠 Volver al catálogo
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // 🔄 Auto-refresh cada 30 segundos para verificar estado
+        setTimeout(() => {
+            if (confirm('¿Quieres verificar si tu pago ya fue confirmado?')) {
+                window.location.reload();
+            }
+        }, 30000);
+
+        // Obtener parámetros de MercadoPago
+        const urlParams = new URLSearchParams(window.location.search);
+        const collection_id = urlParams.get('collection_id');
+        const payment_id = urlParams.get('payment_id');
+        
+        if (collection_id || payment_id) {
+            console.log('Pago pendiente con ID:', collection_id || payment_id);
+            
+            // Guardar información del pago pendiente
+            const orderDataStr = localStorage.getItem('superdog_order');
+            if (orderDataStr) {
+                const orderData = JSON.parse(orderDataStr);
+                orderData.mercadopago = {
+                    collection_id,
+                    payment_id,
+                    status: 'pending',
+                    timestamp: new Date().toISOString()
+                };
+                localStorage.setItem('superdog_order', JSON.stringify(orderData));
+            }
+        }
+    </script>
+</body>
+</html>

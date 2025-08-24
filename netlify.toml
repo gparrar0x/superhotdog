@@ -1,0 +1,28 @@
+[build]
+  # Directorio de publicación
+  publish = "."
+  
+  # Comando de build (no necesario para sitio estático)
+  command = "echo 'Static site with Netlify Functions'"
+
+[functions]
+  # Directorio de las funciones
+  directory = "netlify/functions/"
+
+# Configurar headers para CORS
+[[headers]]
+  for = "/.netlify/functions/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+
+# Variables de entorno requeridas:
+# MP_ACCESS_TOKEN = "TU_ACCESS_TOKEN_DE_MERCADOPAGO"
+# (se configura en Netlify Dashboard → Site settings → Environment variables)
+
+# Para configurar:
+# 1. Ve a tu panel de Netlify
+# 2. Site settings → Environment variables
+# 3. Agrega: MP_ACCESS_TOKEN con tu Access Token de MercadoPago
+# 4. IMPORTANTE: Usa credenciales de TEST primero para probar
