@@ -423,50 +423,47 @@
 
             const orderData = JSON.parse(orderDataStr);
 
-            // 📝 Construir mensaje para WhatsApp (versión simplificada)
-            let message = `🌭 *NUEVO PEDIDO CONFIRMADO* 🌭\n\n`;
+            // 📝 Construir mensaje para WhatsApp (solo texto)
+            let message = `*NUEVO PEDIDO CONFIRMADO*\n\n`;
             
             // Información básica del cliente
-            message += `👤 *Cliente:* ${orderData.customerName}\n`;
-            message += `📅 *Fecha:* ${new Date(orderData.timestamp).toLocaleString('es-AR')}\n`;
+            message += `*Cliente:* ${orderData.customerName}\n`;
+            message += `*Fecha:* ${new Date(orderData.timestamp).toLocaleString('es-AR')}\n`;
             
             // Número de operación y estado
             if (orderData.mercadopago) {
                 const operationNumber = orderData.mercadopago.payment_id || orderData.mercadopago.collection_id;
                 if (operationNumber) {
-                    message += `💳 *N° de Operación:* ${operationNumber}\n`;
+                    message += `*N° de Operación:* ${operationNumber}\n`;
                     
                     if (orderData.mercadopago.collection_status || orderData.mercadopago.status) {
                         const status = orderData.mercadopago.collection_status || orderData.mercadopago.status;
-                        let statusEmoji = '✅';
                         let statusText = 'Pago Aprobado';
                         
                         if (status === 'pending') {
-                            statusEmoji = '⏳';
                             statusText = 'Pago Pendiente';
                         } else if (status === 'rejected') {
-                            statusEmoji = '❌';
                             statusText = 'Pago Rechazado';
                         }
                         
-                        message += `📊 *Estado:* ${statusEmoji} ${statusText}\n`;
+                        message += `*Estado:* ${statusText}\n`;
                     }
                 }
             }
             
             // Aclaraciones si las hay
             if (orderData.customerNotes) {
-                message += `📝 *Aclaraciones:* ${orderData.customerNotes}\n`;
+                message += `*Aclaraciones:* ${orderData.customerNotes}\n`;
             }
             
-            message += `\n🛒 *DETALLE DEL PEDIDO:*\n`;
+            message += `\n*DETALLE DEL PEDIDO:*\n`;
 
             orderData.items.forEach(item => {
                 const subtotal = item.quantity * item.unit_price;
-                message += `• ${item.title} (x${item.quantity}) - $${subtotal.toFixed(2)}\n`;
+                message += `- ${item.title} (x${item.quantity}) - $${subtotal.toFixed(2)}\n`;
             });
 
-            message += `\n💰 *TOTAL ABONADO: $${orderData.total.toFixed(2)}*`;
+            message += `\n*TOTAL ABONADO: $${orderData.total.toFixed(2)}*`;
 
             // 🚀 Abrir WhatsApp
             const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
