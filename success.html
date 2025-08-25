@@ -132,6 +132,37 @@
             margin-bottom: 0.5rem;
         }
 
+        .payment-info {
+            background: rgba(25, 211, 102, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            border: 2px solid #25d366;
+            text-align: center;
+        }
+
+        .payment-info h4 {
+            font-family: 'Bangers', cursive;
+            font-size: 1.3rem;
+            color: #25d366;
+            margin-bottom: 1rem;
+        }
+
+        .payment-number {
+            font-family: 'Bangers', cursive;
+            font-size: 2rem;
+            color: var(--primary-red);
+            text-shadow: 2px 2px 0 #000;
+            margin: 0.5rem 0;
+        }
+
+        .payment-status {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #25d366;
+            margin: 0.5rem 0;
+        }
+
         .btn-whatsapp {
             background: #25d366;
             color: white;
@@ -205,19 +236,22 @@
             <!-- Se llenará con JavaScript -->
         </div>
 
+        <div id="payment-info" class="payment-info">
+            <!-- Se llenará con JavaScript -->
+        </div>
+
         <div class="next-steps">
             <h4>📋 Próximos pasos:</h4>
             <ol>
-                <li><strong>Toma una captura</strong> del comprobante de MercadoPago</li>
-                <li><strong>Haz clic</strong> en "Enviar comprobante" abajo</li>
-                <li><strong>Adjunta la imagen</strong> del comprobante en WhatsApp</li>
+                <li><strong>Envía la confirmación</strong> por WhatsApp con el botón de abajo</li>
+                <li><strong>Incluye todos los datos</strong> de la operación automáticamente</li>
                 <li><strong>¡Listo!</strong> Te confirmaremos tu pedido de inmediato</li>
             </ol>
         </div>
 
         <div class="buttons">
             <button class="btn-whatsapp" onclick="sendReceiptRequest()">
-                📸 Enviar comprobante por WhatsApp
+                📱 Confirmar pedido por WhatsApp
             </button>
             <a href="index.html" class="btn-secondary">
                 🏠 Volver al inicio
@@ -295,12 +329,25 @@
             const collection_id = urlParams.get('collection_id');
             const collection_status = urlParams.get('collection_status');
             const payment_id = urlParams.get('payment_id');
+            const payment_type = urlParams.get('payment_type');
+            const status = urlParams.get('status');
             
-            if (collection_id) {
+            if (collection_id || payment_id) {
                 console.log('Pago confirmado por MercadoPago:', {
                     collection_id,
                     collection_status,
-                    payment_id
+                    payment_id,
+                    payment_type,
+                    status
+                });
+                
+                // Mostrar información del pago
+                displayPaymentInfo({
+                    collection_id,
+                    collection_status,
+                    payment_id,
+                    payment_type,
+                    status
                 });
                 
                 // Agregar información del pago al localStorage si existe
@@ -311,11 +358,58 @@
                         collection_id,
                         collection_status,
                         payment_id,
+                        payment_type,
+                        status,
                         confirmed_at: new Date().toISOString()
                     };
                     localStorage.setItem('superdog_order', JSON.stringify(orderData));
                 }
             }
+        }
+
+        function displayPaymentInfo(paymentData) {
+            const paymentDiv = document.getElementById('payment-info');
+            
+            const operationNumber = paymentData.payment_id || paymentData.collection_id;
+            const statusText = getStatusText(paymentData.collection_status || paymentData.status);
+            const paymentTypeText = getPaymentTypeText(paymentData.payment_type);
+            
+            if (operationNumber) {
+                paymentDiv.innerHTML = `
+                    <h4>💳 Información de la operación</h4>
+                    <div class="payment-number">N° ${operationNumber}</div>
+                    <div class="payment-status">${statusText}</div>
+                    <div style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">
+                        ${paymentTypeText ? `Método: ${paymentTypeText}` : ''}
+                    </div>
+                `;
+            } else {
+                paymentDiv.innerHTML = `
+                    <h4>⚠️ Información de pago</h4>
+                    <p style="color: #666;">No se pudieron obtener los detalles de la operación, pero el pedido fue procesado correctamente.</p>
+                `;
+            }
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'approved': '✅ Pago Aprobado',
+                'pending': '⏳ Pago Pendiente', 
+                'rejected': '❌ Pago Rechazado',
+                'cancelled': '🚫 Pago Cancelado'
+            };
+            return statusMap[status] || '✅ Pago Procesado';
+        }
+
+        function getPaymentTypeText(paymentType) {
+            const typeMap = {
+                'credit_card': 'Tarjeta de Crédito',
+                'debit_card': 'Tarjeta de Débito',
+                'ticket': 'Efectivo',
+                'bank_transfer': 'Transferencia Bancaria',
+                'account_money': 'Dinero en Cuenta'
+            };
+            return typeMap[paymentType] || paymentType;
         }
 
         // 📱 ENVIAR SOLICITUD DE COMPROBANTE POR WHATSAPP
@@ -330,29 +424,44 @@
             const orderData = JSON.parse(orderDataStr);
 
             // 📝 Construir mensaje para WhatsApp
-            let message = `🌭💳 *COMPROBANTE DE PAGO - SUPER HOT DOG* 🎉\n\n`;
-            message += `✅ *PAGO REALIZADO CON ÉXITO*\n\n`;
+            let message = `🌭💳 *CONFIRMACIÓN DE PEDIDO - SUPER HOT DOG* 🎉\n\n`;
+            message += `✅ *PAGO PROCESADO EXITOSAMENTE*\n\n`;
+            
+            // Información del cliente
             message += `👤 *Cliente:* ${orderData.customerName}\n`;
             message += `🕒 *Fecha:* ${new Date(orderData.timestamp).toLocaleString('es-AR')}\n`;
             if (orderData.customerNotes) message += `📝 *Aclaraciones:* ${orderData.customerNotes}\n`;
             
-            // Agregar información de MercadoPago si está disponible
+            // Información de MercadoPago detallada
             if (orderData.mercadopago) {
-                message += `💳 *ID de Pago:* ${orderData.mercadopago.payment_id || 'N/A'}\n`;
+                const operationNumber = orderData.mercadopago.payment_id || orderData.mercadopago.collection_id;
+                if (operationNumber) {
+                    message += `\n💳 *DATOS DE LA OPERACIÓN:*\n`;
+                    message += `🔢 *N° de Operación:* ${operationNumber}\n`;
+                    if (orderData.mercadopago.payment_type) {
+                        const paymentTypeText = getPaymentTypeText(orderData.mercadopago.payment_type);
+                        message += `💸 *Método de Pago:* ${paymentTypeText}\n`;
+                    }
+                    if (orderData.mercadopago.collection_status || orderData.mercadopago.status) {
+                        const status = orderData.mercadopago.collection_status || orderData.mercadopago.status;
+                        const statusText = getStatusText(status);
+                        message += `📊 *Estado:* ${statusText}\n`;
+                    }
+                }
             }
             
-            message += `\n📋 *PEDIDO PAGADO:*\n`;
+            message += `\n📋 *DETALLE DEL PEDIDO:*\n`;
 
             orderData.items.forEach(item => {
                 const subtotal = item.quantity * item.unit_price;
                 message += `• ${item.title} (x${item.quantity}) - $${subtotal.toFixed(2)}\n`;
             });
 
-            message += `\n💰 *TOTAL PAGADO: $${orderData.total.toFixed(2)}*\n\n`;
-            message += `📸 *Por favor, adjunta una captura del comprobante de MercadoPago para confirmar tu pedido.*\n\n`;
+            message += `\n💰 *TOTAL ABONADO: $${orderData.total.toFixed(2)}*\n\n`;
+            message += `🏪 *DATOS DEL LOCAL:*\n`;
             message += `📍 ${BUSINESS_INFO.address}\n`;
             message += `📱 ${BUSINESS_INFO.instagram}\n\n`;
-            message += `🦸‍♂️ ¡Gracias por tu compra! Confirmaremos tu pedido en cuanto recibamos el comprobante.`;
+            message += `🦸‍♂️ ¡Pedido confirmado! Comenzaremos la preparación de inmediato. Te avisamos cuando esté listo para retirar.`;
 
             // 🚀 Abrir WhatsApp
             const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
@@ -360,9 +469,9 @@
 
             // 🧹 Opcional: Limpiar localStorage después de enviar
             setTimeout(() => {
-                if (confirm('¿Ya enviaste el comprobante por WhatsApp? (Esto limpiará los datos del pedido)')) {
+                if (confirm('¿Ya enviaste la confirmación por WhatsApp? (Esto limpiará los datos del pedido)')) {
                     localStorage.removeItem('superdog_order');
-                    alert('🎉 ¡Perfecto! Te contactaremos pronto para confirmar tu súper pedido.');
+                    alert('🎉 ¡Perfecto! Tu pedido está confirmado. Comenzamos la preparación y te avisamos cuando esté listo.');
                 }
             }, 2000);
         }
