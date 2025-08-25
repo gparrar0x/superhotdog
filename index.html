@@ -97,6 +97,13 @@
             letter-spacing: 1px;
         }
 
+        .hero-logo {
+            height: 100px;
+            width: auto;
+            margin-bottom: 0.5rem;
+            filter: drop-shadow(3px 3px 0px #000) drop-shadow(2px 2px 8px rgba(0,0,0,0.5));
+        }
+
         .hero-subtitle {
             font-size: 1.1rem;
             font-weight: 500;
@@ -561,9 +568,26 @@
                 font-size: 2rem;
             }
             
+            .hero-logo {
+                height: 70px;
+            }
+            
             .container {
-                padding: 1rem;
+                padding: 1rem 0.5rem;
                 margin-bottom: 120px;
+            }
+            
+            .categories {
+                gap: 0.5rem;
+                padding: 0 0.5rem 1rem;
+                margin-left: -0.5rem;
+                margin-right: -0.5rem;
+            }
+            
+            .category-btn {
+                padding: 0.8rem 1.2rem;
+                font-size: 0.8rem;
+                flex-shrink: 0;
             }
             
             .products-grid {
@@ -592,7 +616,7 @@
                 <img src="assets/logo-superhotdog.png" alt="Super Hot Dog Logo" class="logo">
             </div>
             <div class="header-text">
-                <h1 class="hero-title">Superhotdog</h1>
+                <img src="assets/logo.png" alt="Super Hot Dog" class="hero-logo">
                 <p class="hero-subtitle">Los Hot Dogs más grandes de Bariloche</p>
                 <p class="hero-location">
                     <span>📍</span>
@@ -673,7 +697,7 @@
         };
         
         // 💳 CONFIGURACIÓN MERCADOPAGO
-        const MP_PUBLIC_KEY = 'APP_USR-e51b4f22-3647-49d8-abe7-9ffefca4b7bc'; // ⚠️ Reemplazar con tu Public Key de MercadoPago
+        const MP_PUBLIC_KEY = 'APP_USR-113d61da-64bb-4896-8722-ccac9563d54c'; // ⚠️ Reemplazar con tu Public Key de MercadoPago
         const mp = new MercadoPago(MP_PUBLIC_KEY);
         
         // 🌐 VARIABLES GLOBALES
@@ -929,9 +953,9 @@
                         email: "cliente@superhotdog.com" // Email ficticio
                     },
                     back_urls: {
-                        success: window.location.origin + "/superhotdog/success.html",
-                        failure: window.location.origin + "/superhotdog/failure.html",
-                        pending: window.location.origin + "/superhotdog/pending.html"
+                        success: window.location.origin + "/success.html",
+                        failure: window.location.origin + "/failure.html",
+                        pending: window.location.origin + "/pending.html"
                     },
                     auto_return: "approved",
                     statement_descriptor: "Super Hot Dog"
