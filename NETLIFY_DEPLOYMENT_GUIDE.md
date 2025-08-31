@@ -1,13 +1,33 @@
 # 🚀 Guía Completa: Super Hot Dog en Netlify
 
-## ✅ **¡Todo está listo para Netlify!**
+## ✅ **¡Sistema completo listo para producción!**
 
 Tu aplicación Super Hot Dog ahora incluye:
-- ✅ **Netlify Function** para crear preferencias MercadoPago
+
+### 🏗️ **Backend Serverless**
+- ✅ **2 Netlify Functions** - get-sheets-data & create-preference
 - ✅ **Configuración automática** con `netlify.toml`  
-- ✅ **Páginas de resultado** (success, failure, pending)
-- ✅ **Manejo completo de errores**
-- ✅ **WhatsApp integrado** para comprobantes
+- ✅ **Variables de entorno** securizadas
+- ✅ **CORS configurado** para todos los dominios
+
+### 🕒 **Sistema de Horarios Inteligente**
+- ✅ **Zona horaria Argentina** (América/Buenos Aires)
+- ✅ **Horarios dinámicos** desde Google Sheets (formato 24h)
+- ✅ **Banner de cerrado** automático fuera de horario
+- ✅ **Footer con horarios** - día actual destacado
+- ✅ **Deshabilitación de pedidos** cuando está cerrado
+
+### 💳 **Sistema de Pagos Avanzado**
+- ✅ **Páginas de resultado** (success, failure, pending) con diseño profesional
+- ✅ **Manejo completo de errores** y estados de pago
+- ✅ **URLs automáticas** (localhost → producción)
+- ✅ **WhatsApp integrado** con número dinámico desde Google Sheets
+
+### 📊 **Integración Google Sheets Completa**
+- ✅ **Doble hoja**: Productos + Información del negocio
+- ✅ **Horarios, teléfono, dirección** dinámicos
+- ✅ **Cache inteligente** (5 minutos)
+- ✅ **Actualización en tiempo real**
 
 ---
 
@@ -42,33 +62,66 @@ git push origin main
 
 ---
 
-## 🔑 **Paso 3: Configurar MercadoPago (CRÍTICO)**
+## 🔑 **Paso 3: Configurar Variables de Entorno (CRÍTICO)**
 
-### **3.1 Obtener credenciales de MercadoPago**
+### **3.1 Google Sheets**
+1. Ve a [Google Cloud Console](https://console.cloud.google.com/)
+2. **Crea/selecciona proyecto** → Habilita **Google Sheets API**
+3. **Credenciales** → **Crear clave API**
+4. **Obtén tu Sheet ID** de la URL de Google Sheets
+
+### **3.2 MercadoPago** 
 1. Ve a [MercadoPago Developers](https://www.mercadopago.com.ar/developers)
-2. **Crea una aplicación** o usa una existente
-3. Ve a **"Credenciales"**
-4. **IMPORTANTE**: Usa **TEST** primero, después **PRODUCTION**
+2. **Crea aplicación** → **Credenciales**
+3. **IMPORTANTE**: Usa **TEST** primero, después **PRODUCTION**
 
-### **3.2 Configurar en Netlify**
+### **3.3 Configurar en Netlify**
 1. En tu dashboard de Netlify → **Site settings**
-2. **Environment variables** (en el menú izquierdo)
-3. **Add variable**:
-   - **Key:** `MP_ACCESS_TOKEN`
-   - **Value:** `TEST-1234567890-abcdef...` (tu Access Token de TEST)
-4. **Save**
+2. **Environment variables** (menú izquierdo)
+3. **Agregar estas 3 variables**:
+   ```bash
+   GOOGLE_SHEET_ID = "1ABC123def456GHI789"
+   GOOGLE_API_KEY = "AIzaSyBV8p6eYfWNGpmF1E9Ob7ae33v7Ci7EN-Y"  
+   MP_ACCESS_TOKEN = "TEST-1234567890-abcdef..."
+   ```
+4. **Save** cada una
+
+### **3.4 Estructura Google Sheets**
+Asegúrate de que tu hoja tenga **2 pestañas**:
+
+#### **"Productos"** (A1:F):
+```
+Nombre | Descripción | Precio | Categoría | Imagen | Disponible
+```
+
+#### **"Informacion"** (A1:B):
+```
+telefono    | +54 11 2162-5416
+direccion   | Av. Gallardo 1081, local 3 - Bariloche  
+lunes       | 10:30-23:00
+martes      | 10:30-23:00
+# ... resto de días en formato 24h
+```
 
 ---
 
 ## 🧪 **Paso 4: Testing**
 
-### **4.1 Probar la función**
+### **4.1 Probar las functions**
 1. Ve a tu URL de Netlify (ej: `https://superhotdog-123.netlify.app`)
 2. **Functions** tab en el dashboard
-3. Deberías ver `create-preference` listada
+3. Deberías ver **2 funciones**:
+   - ✅ `get-sheets-data`
+   - ✅ `create-preference`
 
-### **4.2 Probar el flujo completo**
-1. **Abrir tu sitio** → Agregar productos → "Hacer pedido"
+### **4.2 Probar Google Sheets**
+1. **Abrir tu sitio** → Productos deberían cargar automáticamente
+2. **Verificar horarios** en footer (día actual destacado)
+3. **Probar estado abierto/cerrado** según horario actual
+4. **Cambiar horario en Google Sheets** → Refrescar para verificar actualización
+
+### **4.3 Probar flujo de pago completo**
+1. **Agregar productos** → "Hacer pedido"
 2. **Completar datos** → "Ir a pagar"
 3. **Debería abrir MercadoPago** (modo TEST)
 4. **Usar tarjeta de prueba:**
@@ -78,68 +131,121 @@ git push origin main
    Fecha: 11/25
    ```
 5. **Completar pago** → Debería volver a tu `success.html`
-6. **Probar WhatsApp** con comprobante
+6. **Probar WhatsApp** - debe usar número de Google Sheets
+
+### **4.4 Probar horarios inteligentes**
+1. **Cambiar horario** en Google Sheets a rango fuera del actual
+2. **Refrescar página** → Debería mostrar banner "Cerrado"
+3. **Intentar pedido** → Debe estar deshabilitado
+4. **Restaurar horario** correcto
 
 ---
 
 ## 🔧 **Paso 5: URLs de Producción**
 
-Una vez que funcione, actualiza las URLs en tu `index.html`:
+**✅ ¡Ya no necesitas hacer nada!** 
 
+El sistema automáticamente:
+- ✅ **Detecta localhost** durante desarrollo
+- ✅ **Usa URLs de producción** cuando está en Netlify
+- ✅ **No requiere cambios manuales** en el código
+
+La función `create-preference.js` maneja esto automáticamente:
 ```javascript
-back_urls: {
-    success: "https://TU-SITIO.netlify.app/success.html",
-    failure: "https://TU-SITIO.netlify.app/failure.html", 
-    pending: "https://TU-SITIO.netlify.app/pending.html"
-}
+// Se detecta automáticamente si es desarrollo local
+const isLocalDev = back_urls?.success?.includes('localhost');
+const finalBackUrls = isLocalDev ? {
+    success: "https://superhotdog.netlify.app/success.html",
+    failure: "https://superhotdog.netlify.app/failure.html", 
+    pending: "https://superhotdog.netlify.app/pending.html"
+} : back_urls;
 ```
 
 ---
 
 ## 🚨 **Troubleshooting**
 
-### **Error: "MP_ACCESS_TOKEN not configured"**
+### **Error: Variables de entorno no configuradas**
 ```
+Error: MP_ACCESS_TOKEN not configured
+Error: Google Sheets credentials not configured
+
 Solución:
-1. Verificar variable en Netlify Dashboard
-2. Hacer nuevo deploy después de agregar variable
+1. Verificar las 3 variables en Netlify Dashboard:
+   - GOOGLE_SHEET_ID
+   - GOOGLE_API_KEY  
+   - MP_ACCESS_TOKEN
+2. Hacer nuevo deploy después de agregar variables
 3. Revisar logs en Functions tab
+```
+
+### **Error: "Products not loading"**
+```
+Error: No se cargan los productos
+
+Solución:
+1. Verificar que Google Sheets sea público
+2. Confirmar estructura: pestaña "Productos" (A1:F)
+3. Verificar permisos de la API Key
+4. Revisar logs de get-sheets-data function
+```
+
+### **Error: "Horarios no funcionan"**
+```
+Error: Banner cerrado no aparece / Horarios incorrectos
+
+Solución:
+1. Verificar pestaña "Informacion" en Google Sheets
+2. Usar formato 24h: 10:30-23:00 (no AM/PM)
+3. Nombres exactos: lunes, martes, miercoles, etc.
+4. Verificar zona horaria Argentina en logs
+```
+
+### **Error: "WhatsApp number incorrect"**
+```
+Error: WhatsApp abre con número incorrecto
+
+Solución:
+1. Verificar "telefono" en pestaña "Informacion"  
+2. Formato: +54 11 2162-5416
+3. Refrescar página para cargar nuevo número
 ```
 
 ### **Error: "CORS blocked"**
 ```
 Solución: 
 Ya está configurado en netlify.toml
-Si persiste, verificar que la función esté en netlify/functions/
+Si persiste, verificar que ambas functions estén en netlify/functions/
 ```
 
 ### **Error: "Function not found"**  
 ```
 Solución:
-1. Verificar que el archivo esté en netlify/functions/create-preference.js  
+1. Verificar que ambos archivos estén en netlify/functions/:
+   - create-preference.js
+   - get-sheets-data.js
 2. Re-deploy el sitio
-3. Verificar en Functions tab que aparezca
-```
-
-### **Los pagos no redirigen correctamente**
-```
-Solución:
-1. Verificar URLs en back_urls (líneas 930-934 de index.html)
-2. Usar URL completa: https://tu-sitio.netlify.app/success.html
+3. Verificar en Functions tab que aparezcan ambas
 ```
 
 ---
 
 ## 📊 **Monitoreo**
 
-### **Ver logs de la función:**
+### **Ver logs de las functions:**
 1. Netlify Dashboard → **Functions** 
-2. Click en `create-preference`
+2. Click en cualquier función:
+   - `get-sheets-data` - Para debug de productos y horarios
+   - `create-preference` - Para debug de pagos
 3. **View function logs**
 
 ### **Ver analytics:**
 1. **Analytics** tab en Netlify
 2. Monitorear requests a Functions
+3. **Useful metrics:**
+   - Requests a `get-sheets-data` (carga de catálogo)
+   - Requests a `create-preference` (intentos de pago)
+   - Errores 500 vs 200 status codes
 
 ---
 
@@ -148,10 +254,15 @@ Solución:
 ### **Cuando todo funcione en TEST:**
 
 1. **Cambiar a credenciales PRODUCTION** en MercadoPago
-2. **Actualizar variable** `MP_ACCESS_TOKEN` en Netlify
-3. **Verificar URLs** de vuelta (success, failure, pending)
-4. **Hacer deploy** final
-5. **¡Listo para recibir pagos reales!**
+2. **Actualizar variable** `MP_ACCESS_TOKEN` en Netlify con token de producción
+3. **Verificar horarios** en Google Sheets (formato 24h)
+4. **Probar sistema completo** en producción:
+   - ✅ Carga de productos desde Google Sheets
+   - ✅ Horarios inteligentes con timezone Argentina
+   - ✅ Banner de cerrado fuera de horario
+   - ✅ WhatsApp con número correcto
+   - ✅ Pagos reales con MercadoPago
+5. **¡Listo para recibir pedidos y pagos reales!**
 
 ---
 
@@ -168,19 +279,42 @@ Solución:
 
 ---
 
-## 🎉 **¡Ya tienes un negocio digital completo!**
+## 🎉 **¡Ya tienes un negocio digital completamente automatizado!**
 
 ### **Lo que acabas de crear:**
-- 🌭 **Catálogo online** dinámico
-- 💳 **Pagos reales** con MercadoPago
-- 📱 **Confirmaciones automáticas** por WhatsApp
-- 🚀 **Hosting profesional** con Netlify
-- 🔧 **Backend serverless** con Functions
+- 🌭 **Catálogo online dinámico** con Google Sheets
+- 🕒 **Sistema de horarios inteligente** con timezone Argentina
+- 💳 **Pagos reales automatizados** con MercadoPago
+- 📱 **WhatsApp integrado** con número dinámico
+- 🔒 **Manejo de estados** abierto/cerrado automático
+- 🚀 **Hosting profesional** con backend serverless
+- 🎨 **UI/UX profesional** con tema superhéroe
+- 📊 **Footer informativo** con horarios y contacto alineado
 
 ### **URLs importantes:**
-- 🌐 **Tu sitio:** `https://TU-SITIO.netlify.app`
-- ⚙️ **Dashboard:** `https://app.netlify.com/sites/TU-SITIO`
+- 🌐 **Tu sitio:** `https://superhotdog.netlify.app`
+- ⚙️ **Dashboard:** `https://app.netlify.com/sites/superhotdog`
 - 💳 **MercadoPago:** `https://www.mercadopago.com.ar/developers`
+- 📊 **Google Sheets:** Tu hoja con pestañas "Productos" e "Informacion"
+
+### **Archivos clave del proyecto:**
+```
+superhotdog/
+├── index.html                      # Página principal
+├── assets/
+│   ├── styles.css                 # Estilos separados y optimizados
+│   ├── script.js                  # JavaScript con timezone Argentina
+│   ├── instagram.png              # Icono Instagram
+│   └── whatsapp.png              # Icono WhatsApp
+├── netlify/functions/
+│   ├── get-sheets-data.js         # Function para Google Sheets
+│   └── create-preference.js       # Function para MercadoPago
+├── success.html                   # Página pago exitoso
+├── pending.html                   # Página pago pendiente  
+├── failure.html                   # Página pago fallido
+├── .env                          # Variables de entorno (local)
+└── netlify.toml                  # Configuración Netlify
+```
 
 ---
 

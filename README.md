@@ -1,26 +1,50 @@
-# 🌭 Super Hot Dog - Catálogo Digital 🦸‍♂️
+# 🌭 Super Hot Dog - Catálogo Digital Completo 🦸‍♂️
 
 ![Super Hot Dog Banner](https://img.shields.io/badge/Super%20Hot%20Dog-Bariloche-red?style=for-the-badge&logo=superhero)
 
 ## 📋 Descripción
 
-Aplicación web de catálogo digital para **Super Hot Dog**, el negocio de hot dogs más súper de Bariloche. Con temática de superhéroe y conectado a Google Sheets para gestión dinámica de productos.
+Aplicación web completa de catálogo digital para **Super Hot Dog**, el negocio de hot dogs más súper de Bariloche. Con temática de superhéroe, conectado a Google Sheets y sistema completo de horarios inteligentes con zona horaria Argentina.
 
 ## 🚀 Demo en vivo
 
-[Ver aplicación en GitHub Pages](https://tuusuario.github.io/superhotdog/) *(actualizar con tu usuario)*
+[Ver aplicación en Netlify](https://superhotdog.netlify.app) 
 
-## ✨ Características
+## ✨ Características Principales
 
-- 🦸‍♂️ **Temática de superhéroe** con diseño tipo cómic
-- 📊 **Conectado a Google Sheets** para gestión de productos en tiempo real
-- 💳 **Pagos con MercadoPago** - integración completa con Netlify Functions
-- 🛒 **Carrito de compras** inteligente con cantidades
-- 📱 **Comprobantes automáticos** por WhatsApp después del pago
+### 🛍️ **Sistema de Catálogo Avanzado**
+- 🦸‍♂️ **Temática de superhéroe** con diseño tipo cómic profesional
+- 📊 **Conectado a Google Sheets** (2 hojas: Productos + Información del negocio)
+- 🔄 **Actualización en tiempo real** - cambios instantáneos desde Google Sheets
+- 🗂️ **Categorías dinámicas** con filtros inteligentes
+- 🖼️ **Soporte para imágenes** de productos
+
+### 💳 **Sistema de Pagos Completo**
+- 💳 **MercadoPago integrado** - pagos reales con tarjeta, efectivo y transferencia
+- 🏛️ **Netlify Functions** - backend serverless profesional
+- ✅ **Páginas de resultado** (éxito, fallo, pendiente) con diseño coherente
+- 📱 **Confirmación automática** por WhatsApp con datos de la transacción
+
+### 🕒 **Sistema de Horarios Inteligente**
+- 🌍 **Zona horaria Argentina** (América/Buenos Aires) configurada
+- 📅 **Horarios dinámicos** desde Google Sheets (formato 24h)
+- 🔒 **Banner de cerrado** cuando el negocio no está operativo
+- 🚫 **Deshabilitación automática** de pedidos fuera de horario
+- 📊 **Footer con horarios** - día actual destacado
+- 🕐 **Header con horario actual** y tiempo en vivo
+
+### 📱 **Integración WhatsApp Avanzada**
+- 📞 **Número dinámico** desde Google Sheets
+- 📋 **Comprobantes detallados** con información completa del pedido
+- 🔗 **Enlaces inteligentes** en todas las páginas de pago
+- 💬 **Mensajes personalizados** según el contexto
+
+### 🎨 **Diseño y UX**
 - 🌐 **Responsive design** - optimizado para móviles y desktop
-- ⚡ **Carga rápida** - aplicación web con backend serverless
-- 🔄 **Actualización en tiempo real** del catálogo desde Google Sheets
-- 🔧 **Backend profesional** con Netlify Functions (gratis)
+- ⚡ **Carga rápida** - CSS y JS separados y optimizados
+- 🛒 **Carrito inteligente** con cantidades y total dinámico
+- 🔒 **Manejo de estados** - abierto/cerrado con estilos diferenciados
+- 🎭 **Iconos personalizados** - Instagram y WhatsApp con imágenes PNG
 
 ## 🏪 Información del negocio
 
@@ -31,18 +55,41 @@ Aplicación web de catálogo digital para **Super Hot Dog**, el negocio de hot d
 
 ## 🔧 Configuración
 
-### 1. Google Sheets
+### 1. Google Sheets - Estructura Completa
 
-Crea una hoja de Google Sheets con la siguiente estructura:
+Crea una hoja de Google Sheets con **2 pestañas**:
+
+#### **Pestaña "Productos"** (A1:F):
 
 | A (Nombre) | B (Descripción) | C (Precio) | D (Categoría) | E (Imagen URL) | F (Disponible) |
 |------------|----------------|------------|---------------|----------------|----------------|
-| Super Dog Gigante | Hot dog de 34cm con salchicha especial | 12.99 | super-dogs | | TRUE |
-| Pollo Broaster | Pollo crispy con salsa especial | 8.99 | pollo | | TRUE |
+| Super Dog Gigante | Hot dog de 34cm con salchicha especial | 2500 | super-dogs | https://... | TRUE |
+| Pollo Broaster | Pollo crispy con salsa especial | 1899 | pollo | https://... | TRUE |
+
+#### **Pestaña "Informacion"** (A1:B):
+
+| A (Campo) | B (Valor) |
+|-----------|-----------|
+| nombre | Super Hot Dog |
+| direccion | Av. Gallardo 1081, local 3 - Bariloche |
+| telefono | +54 11 2162-5416 |
+| instagram | @superhotdogbrc |
+| lunes | 10:30-23:00 |
+| martes | 10:30-23:00 |
+| miercoles | 10:30-23:00 |
+| jueves | 10:30-23:00 |
+| viernes | 10:30-23:00 |
+| sabado | 10:30-23:00 |
+| domingo | 10:30-23:00 |
+
+**📝 Notas importantes:**
+- ✅ **Horarios en formato 24h**: `10:30-23:00` (no AM/PM)
+- ✅ **Teléfono con código país**: `+54 11 2162-5416` 
+- ✅ **Precios sin decimales**: `2500` (no `25.00`)
 
 #### Categorías disponibles:
 - `super-dogs` - Hot dogs gigantes especiales
-- `clasicos` - Hot dogs tradicionales
+- `clasicos` - Hot dogs tradicionales  
 - `pollo` - Opciones de pollo
 - `acompañamientos` - Papas, aros, etc.
 - `bebidas` - Gaseosas, jugos
@@ -59,14 +106,17 @@ Crea una hoja de Google Sheets con la siguiente estructura:
    - Restricciones de aplicación: **Referentes HTTP**
    - Sitios web: `*.github.io/*`, `localhost/*`
 
-### 3. Configurar la aplicación
+### 3. Variables de Entorno (.env)
 
-Edita el archivo `index.html` y actualiza estas líneas (642-647):
+Crea un archivo `.env` en la raíz del proyecto:
 
-```javascript
-const SHEET_ID = 'TU_SHEET_ID_AQUI'; // ID de tu hoja de Google Sheets
-const API_KEY = 'TU_API_KEY_AQUI';   // Tu API Key de Google Cloud
-const WHATSAPP_NUMBER = '5491234567890'; // Número de WhatsApp del negocio
+```bash
+# Google Sheets Configuration
+GOOGLE_SHEET_ID=1ABC123def456GHI789
+GOOGLE_API_KEY=AIzaSyBV8p6eYfWNGpmF1E9Ob7ae33v7Ci7EN-Y
+
+# MercadoPago Configuration
+MP_ACCESS_TOKEN=APP_USR-1234567890-abcdef...
 ```
 
 #### ¿Cómo obtener el Sheet ID?
@@ -77,6 +127,8 @@ https://docs.google.com/spreadsheets/d/1ABC123def456GHI789/edit
                                     ^^^^^^^^^^^^^^^^
                                     Este es tu Sheet ID
 ```
+
+**🔒 IMPORTANTE:** El archivo `.env` ya está en `.gitignore` - nunca subas credenciales a Git.
 
 ### 4. Permisos de la hoja
 
@@ -142,12 +194,31 @@ git push origin main
 git clone https://github.com/tuusuario/superhotdog.git
 cd superhotdog
 
-# Abrir con un servidor local (opcional)
-python -m http.server 8000
-# O usar Live Server de VS Code
+# Crear archivo .env con tus credenciales
+cp .env.example .env
+# Editar .env con tus claves reales
 
-# Abrir en navegador
-open http://localhost:8000
+# Instalar Netlify CLI (si no la tienes)
+npm install -g netlify-cli
+
+# Ejecutar servidor de desarrollo con Functions
+netlify dev
+
+# La aplicación estará en http://localhost:8888
+# Las functions estarán en /.netlify/functions/
+```
+
+### 🔧 **Comandos útiles:**
+
+```bash
+# Ver logs de las functions
+netlify dev --debug
+
+# Ejecutar en puerto específico  
+netlify dev --port 3000
+
+# Build para producción
+netlify build
 ```
 
 ## 📱 Uso de la aplicación
@@ -198,21 +269,35 @@ const BUSINESS_INFO = {
 ## 🔧 **Netlify Functions**
 
 ### **Funciones incluidas:**
-- ✅ `create-preference.js` - Crea preferencias de pago en MercadoPago
-- ✅ **CORS configurado** - Funciona desde cualquier dominio
-- ✅ **Manejo de errores** completo
+
+#### 📊 **get-sheets-data.js**
+- ✅ **Obtiene productos** desde Google Sheets (pestaña "Productos")
+- ✅ **Obtiene info del negocio** desde Google Sheets (pestaña "Informacion")  
+- ✅ **Parsea horarios dinámicos** con zona horaria Argentina
+- ✅ **Cache inteligente** (5 minutos)
+- ✅ **CORS configurado**
+
+#### 💳 **create-preference.js**
+- ✅ **Crea preferencias MercadoPago** para pagos
+- ✅ **URLs automáticas** (localhost → producción) 
+- ✅ **Manejo completo de errores**
 - ✅ **Logs detallados** para debugging
 
 ### **Variables de entorno requeridas:**
-```
-MP_ACCESS_TOKEN = "TEST-1234567890-abcdef..." (tu Access Token de MercadoPago)
+```bash
+GOOGLE_SHEET_ID = "1ABC123def456GHI789"
+GOOGLE_API_KEY = "AIzaSyBV8p6eYfWNGpmF1E9Ob7ae33v7Ci7EN-Y"
+MP_ACCESS_TOKEN = "APP_USR-1234567890-abcdef..."
 ```
 
 ### **Endpoints:**
-```
-POST /.netlify/functions/create-preference
-- Crea una preferencia de pago
-- Devuelve: { preference_id, init_point }
+```bash
+GET  /.netlify/functions/get-sheets-data
+     - Devuelve: { products, businessInfo, lastUpdated }
+
+POST /.netlify/functions/create-preference  
+     - Crea una preferencia de pago
+     - Devuelve: { preference_id, init_point, sandbox_init_point }
 ```
 
 ---

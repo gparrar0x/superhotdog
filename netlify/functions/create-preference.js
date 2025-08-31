@@ -47,12 +47,12 @@ exports.handler = async (event, context) => {
 
         console.log('Creating preference for:', { items, payer });
 
-        // Para desarrollo local, usar URLs que MercadoPago acepte
+        // Para desarrollo local, usar URLs localhost 
         const isLocalDev = back_urls?.success?.includes('localhost');
         const finalBackUrls = isLocalDev ? {
-            success: "https://superhotdog.netlify.app/success.html",
-            failure: "https://superhotdog.netlify.app/failure.html", 
-            pending: "https://superhotdog.netlify.app/pending.html"
+            success: "http://localhost:8888/success.html",
+            failure: "http://localhost:8888/failure.html", 
+            pending: "http://localhost:8888/pending.html"
         } : back_urls;
 
         // Crear preferencia en MercadoPago
@@ -60,10 +60,11 @@ exports.handler = async (event, context) => {
             items: items,
             payer: payer,
             back_urls: finalBackUrls,
-            auto_return: "approved",
+            // Solo usar auto_return en producción (no funciona con localhost)
+            ...(isLocalDev ? {} : { auto_return: "approved" }),
             statement_descriptor: "Super Hot Dog",
             payment_methods: {
-                excluded_payment_types: [],
+                excluded_payment_types: [{"id": "ticket"}],
                 excluded_payment_methods: [],
                 installments: 12
             },
