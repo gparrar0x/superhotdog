@@ -158,8 +158,7 @@
         </div>
 
         <div class="buttons">
-            <a href="https://wa.me/5492944229764?text=Hola!%20Tengo%20un%20pago%20pendiente%20y%20quería%20consultar%20el%20estado%20🌭" 
-               target="_blank" class="btn btn-whatsapp">
+            <a href="#" id="whatsapp-link" class="btn btn-whatsapp">
                 📱 Consultar estado por WhatsApp
             </a>
             <a href="index.html" class="btn btn-secondary">
@@ -169,12 +168,41 @@
     </div>
 
     <script>
+        let businessInfo = {};
+
         // 🔄 Auto-refresh cada 30 segundos para verificar estado
         setTimeout(() => {
             if (confirm('¿Quieres verificar si tu pago ya fue confirmado?')) {
                 window.location.reload();
             }
         }, 30000);
+
+        // Cargar información del negocio
+        async function loadBusinessInfo() {
+            try {
+                const response = await fetch('/.netlify/functions/get-sheets-data');
+                const data = await response.json();
+                
+                if (data.success && data.businessInfo) {
+                    businessInfo = data.businessInfo;
+                    setupWhatsAppLink();
+                }
+            } catch (error) {
+                console.error('Error loading business info:', error);
+                // Fallback al número por defecto
+                setupWhatsAppLink();
+            }
+        }
+
+        function setupWhatsAppLink() {
+            const whatsappLink = document.getElementById('whatsapp-link');
+            const phone = businessInfo.phone || '541121625416'; // Fallback
+            const cleanPhone = phone.replace(/\D/g, ''); // Remove non-digits
+            
+            const message = 'Hola! Tengo un pago pendiente y quería consultar el estado 🌭';
+            whatsappLink.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+            whatsappLink.target = '_blank';
+        }
 
         // Obtener parámetros de MercadoPago
         const urlParams = new URLSearchParams(window.location.search);
@@ -197,6 +225,9 @@
                 localStorage.setItem('superdog_order', JSON.stringify(orderData));
             }
         }
+
+        // Cargar información del negocio al inicializar
+        document.addEventListener('DOMContentLoaded', loadBusinessInfo);
     </script>
 </body>
 </html>

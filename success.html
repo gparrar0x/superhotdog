@@ -260,20 +260,35 @@
     </div>
 
     <script>
-        // 📞 CONFIGURACIÓN DEL NEGOCIO
-        const WHATSAPP_NUMBER = '541121625416';
-        const BUSINESS_INFO = {
-            name: 'Super Hot Dog',
-            address: 'Av. Gallardo 1081, local 3, Bariloche',
-            instagram: '@superhotdogbrc'
-        };
+        // 📞 CONFIGURACIÓN DEL NEGOCIO (se carga dinámicamente)
+        let WHATSAPP_NUMBER = '541121625416'; // Fallback
+        let businessInfo = {};
 
         // 🚀 CARGAR DATOS DEL PEDIDO
         document.addEventListener('DOMContentLoaded', function() {
+            loadBusinessInfo();
             loadOrderSummary();
             // También intentar obtener parámetros de MercadoPago
             checkMercadoPagoParams();
         });
+
+        // Cargar información del negocio
+        async function loadBusinessInfo() {
+            try {
+                const response = await fetch('/.netlify/functions/get-sheets-data');
+                const data = await response.json();
+                
+                if (data.success && data.businessInfo) {
+                    businessInfo = data.businessInfo;
+                    if (businessInfo.phone) {
+                        WHATSAPP_NUMBER = businessInfo.phone.replace(/\D/g, ''); // Remove non-digits
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading business info:', error);
+                // Keep fallback number
+            }
+        }
 
         function loadOrderSummary() {
             // 📦 Recuperar datos del pedido desde localStorage

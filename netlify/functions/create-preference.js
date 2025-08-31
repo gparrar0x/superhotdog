@@ -47,11 +47,19 @@ exports.handler = async (event, context) => {
 
         console.log('Creating preference for:', { items, payer });
 
+        // Para desarrollo local, usar URLs que MercadoPago acepte
+        const isLocalDev = back_urls?.success?.includes('localhost');
+        const finalBackUrls = isLocalDev ? {
+            success: "https://superhotdog.netlify.app/success.html",
+            failure: "https://superhotdog.netlify.app/failure.html", 
+            pending: "https://superhotdog.netlify.app/pending.html"
+        } : back_urls;
+
         // Crear preferencia en MercadoPago
         const preference = {
             items: items,
             payer: payer,
-            back_urls: back_urls,
+            back_urls: finalBackUrls,
             auto_return: "approved",
             statement_descriptor: "Super Hot Dog",
             payment_methods: {

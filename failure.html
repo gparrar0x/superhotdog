@@ -154,8 +154,7 @@
             <a href="index.html" class="btn btn-retry">
                 🔄 Intentar de nuevo
             </a>
-            <a href="https://wa.me/5492944229764?text=Hola%20Super%20Hot%20Dog!%20Quiero%20hacer%20un%20pedido%20en%20efectivo%20🌭" 
-               target="_blank" class="btn btn-whatsapp">
+            <a href="#" id="whatsapp-link" class="btn btn-whatsapp">
                 💰 Pedir en efectivo
             </a>
             <a href="index.html" class="btn btn-secondary">
@@ -165,6 +164,38 @@
     </div>
 
     <script>
+        let businessInfo = {};
+
+        // Cargar información del negocio
+        async function loadBusinessInfo() {
+            try {
+                const response = await fetch('/.netlify/functions/get-sheets-data');
+                const data = await response.json();
+                
+                if (data.success && data.businessInfo) {
+                    businessInfo = data.businessInfo;
+                    setupWhatsAppLink();
+                }
+            } catch (error) {
+                console.error('Error loading business info:', error);
+                // Fallback al número por defecto
+                setupWhatsAppLink();
+            }
+        }
+
+        function setupWhatsAppLink() {
+            const whatsappLink = document.getElementById('whatsapp-link');
+            const phone = businessInfo.phone || '541121625416'; // Fallback
+            const cleanPhone = phone.replace(/\D/g, ''); // Remove non-digits
+            
+            const message = 'Hola Super Hot Dog! Quiero hacer un pedido en efectivo 🌭';
+            whatsappLink.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+            whatsappLink.target = '_blank';
+        }
+
+        // Cargar información del negocio al inicializar
+        document.addEventListener('DOMContentLoaded', loadBusinessInfo);
+
         // Limpiar datos del pedido fallido después de un tiempo
         setTimeout(() => {
             localStorage.removeItem('superdog_order');

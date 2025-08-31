@@ -19,7 +19,9 @@
 
 # Variables de entorno requeridas:
 # MP_ACCESS_TOKEN = "TU_ACCESS_TOKEN_DE_MERCADOPAGO"
-# (se configura en Netlify Dashboard → Site settings → Environment variables)
+# GOOGLE_SHEET_ID = "TU_GOOGLE_SHEET_ID"
+# GOOGLE_API_KEY = "TU_GOOGLE_SHEETS_API_KEY"
+# (se configuran en Netlify Dashboard → Site settings → Environment variables)
 
 # Para configurar:
 # 1. Ve a tu panel de Netlify
