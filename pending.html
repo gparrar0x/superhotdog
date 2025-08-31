@@ -159,7 +159,7 @@
 
         <div class="buttons">
             <a href="#" id="whatsapp-link" class="btn btn-whatsapp">
-                📱 Consultar estado por WhatsApp
+                💰 Pagar en efectivo
             </a>
             <a href="index.html" class="btn btn-secondary">
                 🏠 Volver al catálogo
@@ -199,7 +199,39 @@
             const phone = businessInfo.phone || '541121625416'; // Fallback
             const cleanPhone = phone.replace(/\D/g, ''); // Remove non-digits
             
-            const message = 'Hola! Tengo un pago pendiente y quería consultar el estado 🌭';
+            // Obtener datos del pedido desde localStorage
+            const orderDataStr = localStorage.getItem('superdog_order');
+            let message = '';
+
+            if (orderDataStr) {
+                const orderData = JSON.parse(orderDataStr);
+                
+                // Construir mensaje con detalle del pedido para pago en efectivo
+                message = `*PEDIDO PARA PAGO EN EFECTIVO*\\n\\n`;
+                
+                // Información básica del cliente
+                message += `*Cliente:* ${orderData.customerName}\\n`;
+                message += `*Fecha:* ${new Date(orderData.timestamp).toLocaleString('es-AR')}\\n`;
+                
+                // Aclaraciones si las hay
+                if (orderData.customerNotes) {
+                    message += `*Aclaraciones:* ${orderData.customerNotes}\\n`;
+                }
+                
+                message += `\\n*DETALLE DEL PEDIDO:*\\n`;
+
+                orderData.items.forEach(item => {
+                    const subtotal = item.quantity * item.unit_price;
+                    message += `- ${item.title} (x${item.quantity}) - $${subtotal.toFixed(2)}\\n`;
+                });
+
+                message += `\\n*TOTAL A PAGAR EN EFECTIVO: $${orderData.total.toFixed(2)}*\\n`;
+                message += `\\n🏪 Pagaré en efectivo al retirar en el local.`;
+            } else {
+                // Mensaje fallback si no hay datos del pedido
+                message = 'Hola! Quiero hacer un pedido para pago en efectivo 🌭';
+            }
+            
             whatsappLink.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
             whatsappLink.target = '_blank';
         }
