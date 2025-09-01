@@ -270,6 +270,8 @@
             loadOrderSummary();
             // También intentar obtener parámetros de MercadoPago
             checkMercadoPagoParams();
+            // 💾 Registrar pedido aprobado en Google Sheets
+            registerOrderInSheets();
         });
 
         // Cargar información del negocio
@@ -427,6 +429,87 @@
             return typeMap[paymentType] || paymentType;
         }
 
+        // 💾 REGISTRAR PEDIDO EN GOOGLE SHEETS
+        async function registerOrderInSheets() {
+            const orderDataStr = localStorage.getItem('superdog_order');
+            
+            if (!orderDataStr) {
+                console.log('No order data found to register');
+                return;
+            }
+
+            // Verificar si el pedido ya fue registrado
+            if (localStorage.getItem('superdog_order_registered')) {
+                console.log('Order already registered, skipping...');
+                return;
+            }
+
+            try {
+                const orderData = JSON.parse(orderDataStr);
+                
+                // Preparar datos del pedido para guardar
+                const orderToSave = {
+                    customerName: orderData.customerName,
+                    customerPhone: orderData.customerPhone || '',
+                    customerNotes: orderData.customerNotes || '',
+                    items: orderData.items,
+                    total: orderData.total,
+                    timestamp: orderData.timestamp,
+                    status: 'preparando', // Estado inicial para pedidos pagados
+                    paymentMethod: 'mercadopago',
+                    paymentId: orderData.mercadopago?.payment_id || orderData.mercadopago?.collection_id || ''
+                };
+
+                console.log('Registering order:', orderToSave);
+
+                // Enviar a la función de Netlify
+                const response = await fetch('/.netlify/functions/save-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(orderToSave)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('Order registered successfully:', result);
+                    
+                    // Marcar como registrado para evitar duplicados
+                    localStorage.setItem('superdog_order_registered', 'true');
+                    
+                    // Agregar el ID del pedido al localStorage
+                    orderData.orderId = result.orderId;
+                    localStorage.setItem('superdog_order', JSON.stringify(orderData));
+                    
+                    // Mostrar el ID del pedido en la página
+                    displayOrderId(result.orderId);
+                    
+                } else {
+                    const error = await response.json();
+                    console.error('Error registering order:', error);
+                }
+                
+            } catch (error) {
+                console.error('Error registering order:', error);
+            }
+        }
+
+        // 🆔 MOSTRAR ID DEL PEDIDO
+        function displayOrderId(orderId) {
+            const orderSummary = document.getElementById('order-summary');
+            if (orderSummary && orderId) {
+                // Buscar dónde insertar el ID del pedido
+                const existingInfo = orderSummary.querySelector('.order-info');
+                if (existingInfo) {
+                    // Agregar el ID del pedido después de la fecha
+                    const orderIdElement = document.createElement('div');
+                    orderIdElement.innerHTML = `<strong>🆔 N° de Pedido:</strong> ${orderId}`;
+                    existingInfo.appendChild(orderIdElement);
+                }
+            }
+        }
+
         // 📱 ENVIAR SOLICITUD DE COMPROBANTE POR WHATSAPP
         function sendReceiptRequest() {
             const orderDataStr = localStorage.getItem('superdog_order');
@@ -444,6 +527,11 @@
             // Información básica del cliente
             message += `*Cliente:* ${orderData.customerName}\n`;
             message += `*Fecha:* ${new Date(orderData.timestamp).toLocaleString('es-AR')}\n`;
+            
+            // Agregar ID del pedido si existe
+            if (orderData.orderId) {
+                message += `*N° de Pedido:* ${orderData.orderId}\n`;
+            }
             
             // Número de operación y estado
             if (orderData.mercadopago) {

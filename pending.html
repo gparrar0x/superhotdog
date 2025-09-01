@@ -177,6 +177,98 @@
             }
         }, 30000);
 
+        // 💾 REGISTRAR PEDIDO EN EFECTIVO EN GOOGLE SHEETS
+        async function registerCashOrderInSheets() {
+            const orderDataStr = localStorage.getItem('superdog_order');
+            
+            if (!orderDataStr) {
+                console.log('No order data found to register');
+                return;
+            }
+
+            // Verificar si el pedido ya fue registrado
+            if (localStorage.getItem('superdog_order_registered')) {
+                console.log('Cash order already registered, skipping...');
+                return;
+            }
+
+            // Solo registrar si NO hay parámetros de MercadoPago (es pedido en efectivo puro)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('collection_id') || urlParams.get('payment_id')) {
+                console.log('This is a pending payment, not a cash order');
+                return;
+            }
+
+            try {
+                const orderData = JSON.parse(orderDataStr);
+                
+                // Preparar datos del pedido para guardar
+                const orderToSave = {
+                    customerName: orderData.customerName,
+                    customerPhone: orderData.customerPhone || '',
+                    customerNotes: orderData.customerNotes || '',
+                    items: orderData.items,
+                    total: orderData.total,
+                    timestamp: orderData.timestamp || new Date().toISOString(),
+                    status: 'pendiente', // Estado inicial para pedidos en efectivo
+                    paymentMethod: 'efectivo',
+                    paymentId: ''
+                };
+
+                console.log('Registering cash order:', orderToSave);
+
+                // Enviar a la función de Netlify
+                const response = await fetch('/.netlify/functions/save-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(orderToSave)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('Cash order registered successfully:', result);
+                    
+                    // Marcar como registrado para evitar duplicados
+                    localStorage.setItem('superdog_order_registered', 'true');
+                    
+                    // Agregar el ID del pedido al localStorage
+                    orderData.orderId = result.orderId;
+                    localStorage.setItem('superdog_order', JSON.stringify(orderData));
+                    
+                    // Mostrar el ID del pedido en la página
+                    displayOrderId(result.orderId);
+                    
+                } else {
+                    const error = await response.json();
+                    console.error('Error registering cash order:', error);
+                }
+                
+            } catch (error) {
+                console.error('Error registering cash order:', error);
+            }
+        }
+
+        // 🆔 MOSTRAR ID DEL PEDIDO
+        function displayOrderId(orderId) {
+            // Buscar un lugar apropiado para mostrar el ID del pedido
+            const container = document.querySelector('.success-container') || document.querySelector('.container');
+            if (container && orderId) {
+                const orderIdElement = document.createElement('div');
+                orderIdElement.style.cssText = 'background: #f0f9ff; padding: 15px; margin: 20px 0; border-radius: 10px; border-left: 4px solid #1e40af; font-weight: bold; color: #1e40af;';
+                orderIdElement.innerHTML = `🆔 N° de Pedido: ${orderId}`;
+                
+                // Insertar después del primer hijo (título)
+                const firstChild = container.firstElementChild;
+                if (firstChild && firstChild.nextSibling) {
+                    container.insertBefore(orderIdElement, firstChild.nextSibling);
+                } else {
+                    container.appendChild(orderIdElement);
+                }
+            }
+        }
+
         // Cargar información del negocio
         async function loadBusinessInfo() {
             try {
@@ -212,6 +304,11 @@
                 // Información básica del cliente
                 message += `*Cliente:* ${orderData.customerName}\\n`;
                 message += `*Fecha:* ${new Date(orderData.timestamp).toLocaleString('es-AR')}\\n`;
+                
+                // Agregar ID del pedido si existe
+                if (orderData.orderId) {
+                    message += `*N° de Pedido:* ${orderData.orderId}\\n`;
+                }
                 
                 // Aclaraciones si las hay
                 if (orderData.customerNotes) {
@@ -259,7 +356,11 @@
         }
 
         // Cargar información del negocio al inicializar
-        document.addEventListener('DOMContentLoaded', loadBusinessInfo);
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBusinessInfo();
+            // 💾 Registrar pedido en efectivo en Google Sheets
+            registerCashOrderInSheets();
+        });
     </script>
 </body>
 </html>
