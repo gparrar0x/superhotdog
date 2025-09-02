@@ -1,5 +1,7 @@
 // Netlify Function para guardar pedidos en Google Sheets
 const fetch = require('node-fetch');
+const { readFileSync } = require('fs');
+const path = require('path');
 
 exports.handler = async (event, context) => {
     // Configurar CORS
@@ -28,20 +30,22 @@ exports.handler = async (event, context) => {
 
     try {
         // Verificar variables de entorno
-        const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
         const GOOGLE_SHEET_ID = process.env.GOOGLE_SHEET_ID;
         
-        if (!GOOGLE_API_KEY || !GOOGLE_SHEET_ID) {
-            console.error('Missing environment variables');
+        if (!GOOGLE_SHEET_ID) {
+            console.error('Missing GOOGLE_SHEET_ID');
             return {
                 statusCode: 500,
                 headers,
                 body: JSON.stringify({ 
                     error: 'Server configuration error',
-                    message: 'Missing Google Sheets credentials'
+                    message: 'Missing Google Sheets ID'
                 })
             };
         }
+
+        // Obtener access token usando service account
+        const accessToken = await getAccessToken();
 
         // Parsear datos del pedido
         const orderData = JSON.parse(event.body);
@@ -69,22 +73,23 @@ exports.handler = async (event, context) => {
         ];
 
         // URL para insertar datos en Google Sheets
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEET_ID}/values/Pedidos:append?valueInputOption=USER_ENTERED&key=${GOOGLE_API_KEY}`;
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEET_ID}/values/Pedidos:append?valueInputOption=USER_ENTERED`;
         
         const payload = {
             values: [rowData]
         };
 
         console.log('Sending to Google Sheets:', {
-            url: url.replace(GOOGLE_API_KEY, '[REDACTED]'),
+            url,
             payload: payload
         });
 
-        // Hacer request a Google Sheets API
+        // Hacer request a Google Sheets API con OAuth token
         const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
             },
             body: JSON.stringify(payload)
         });
@@ -133,3 +138,90 @@ exports.handler = async (event, context) => {
         };
     }
 };
+
+// Función para obtener access token usando service account
+async function getAccessToken() {
+    try {
+        // Obtener credenciales desde variables de entorno o archivo local
+        let credentials;
+        
+        if (process.env.GOOGLE_SERVICE_ACCOUNT_KEY) {
+            // En producción: usar variable de entorno
+            credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
+        } else {
+            // En desarrollo local: usar archivo
+            const credentialsPath = path.join(__dirname, '../../superhotdog-ea5950f3bcbd.json');
+            credentials = JSON.parse(readFileSync(credentialsPath, 'utf8'));
+        }
+        
+        // Crear JWT assertion
+        const jwt = createJWT(credentials);
+        
+        // Intercambiar JWT por access token
+        const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+                assertion: jwt
+            })
+        });
+        
+        if (!tokenResponse.ok) {
+            const error = await tokenResponse.text();
+            throw new Error(`Token request failed: ${error}`);
+        }
+        
+        const tokenData = await tokenResponse.json();
+        return tokenData.access_token;
+        
+    } catch (error) {
+        console.error('Error getting access token:', error);
+        throw error;
+    }
+}
+
+// Función para crear JWT
+function createJWT(credentials) {
+    const header = {
+        alg: 'RS256',
+        typ: 'JWT'
+    };
+    
+    const now = Math.floor(Date.now() / 1000);
+    const payload = {
+        iss: credentials.client_email,
+        scope: 'https://www.googleapis.com/auth/spreadsheets',
+        aud: 'https://oauth2.googleapis.com/token',
+        iat: now,
+        exp: now + 3600 // 1 hora
+    };
+    
+    const crypto = require('crypto');
+    
+    const encodedHeader = base64urlEncode(JSON.stringify(header));
+    const encodedPayload = base64urlEncode(JSON.stringify(payload));
+    const signingInput = `${encodedHeader}.${encodedPayload}`;
+    
+    const signature = crypto
+        .createSign('RSA-SHA256')
+        .update(signingInput)
+        .sign(credentials.private_key, 'base64');
+    
+    const encodedSignature = base64urlEncode(Buffer.from(signature, 'base64'));
+    
+    return `${signingInput}.${encodedSignature}`;
+}
+
+// Función para codificar en base64url
+function base64urlEncode(data) {
+    if (typeof data === 'string') {
+        data = Buffer.from(data);
+    }
+    return data.toString('base64')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '');
+}
