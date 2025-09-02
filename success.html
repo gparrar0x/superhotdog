@@ -438,14 +438,19 @@
                 return;
             }
 
-            // Verificar si el pedido ya fue registrado
-            if (localStorage.getItem('superdog_order_registered')) {
+            const orderData = JSON.parse(orderDataStr);
+            
+            // Generar un ID único para este pedido basado en timestamp
+            const orderTimestamp = orderData.timestamp || new Date().toISOString();
+            const orderRegistrationKey = `superdog_order_registered_${orderTimestamp}`;
+
+            // Verificar si ESTE pedido específico ya fue registrado
+            if (localStorage.getItem(orderRegistrationKey)) {
                 console.log('Order already registered, skipping...');
                 return;
             }
 
             try {
-                const orderData = JSON.parse(orderDataStr);
                 
                 // Preparar datos del pedido para guardar
                 const orderToSave = {
@@ -475,8 +480,8 @@
                     const result = await response.json();
                     console.log('Order registered successfully:', result);
                     
-                    // Marcar como registrado para evitar duplicados
-                    localStorage.setItem('superdog_order_registered', 'true');
+                    // Marcar este pedido específico como registrado para evitar duplicados
+                    localStorage.setItem(orderRegistrationKey, 'true');
                     
                     // Agregar el ID del pedido al localStorage
                     orderData.orderId = result.orderId;
