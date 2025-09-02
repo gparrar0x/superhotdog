@@ -51,24 +51,25 @@ exports.handler = async (event, context) => {
         const orderData = JSON.parse(event.body);
         console.log('Saving order:', orderData);
 
-        // Generar ID único del pedido (formato: SHD-YYYYMMDD-XXX)
+        // Generar ID único del pedido (formato: SHD-YYYYMMDD-XXX) con timezone Buenos Aires
         const now = new Date();
-        const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
+        const buenosAiresDate = new Date(now.toLocaleString("en-US", {timeZone: "America/Argentina/Buenos_Aires"}));
+        const dateStr = buenosAiresDate.toISOString().slice(0, 10).replace(/-/g, '');
         const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
         const orderId = `SHD-${dateStr}-${randomSuffix}`;
 
         // Preparar fila para insertar en Google Sheets
-        // Columnas: ID_Pedido, Fecha, Cliente, Items_JSON, Total, Estado, Pago_Metodo, Pago_ID, Telefono, Notas
+        // Columnas: ID_Pedido, Fecha, Cliente, Total, Estado, Pago_Metodo, Pago_ID, Telefono, email, Notas
         const rowData = [
             orderId,                                           // A: ID_Pedido
-            now.toISOString(),                                // B: Fecha (ISO format)
+            buenosAiresDate.toISOString(),                    // B: Fecha (Buenos Aires timezone)
             orderData.customerName || '',                     // C: Cliente
-            JSON.stringify(orderData.items || []),            // D: Items_JSON
-            parseFloat(orderData.total || 0),                 // E: Total
-            orderData.status || 'pendiente',                  // F: Estado
-            orderData.paymentMethod || 'efectivo',            // G: Pago_Metodo
-            orderData.paymentId || '',                        // H: Pago_ID
-            orderData.customerPhone || '',                    // I: Telefono
+            parseFloat(orderData.total || 0),                 // D: Total
+            orderData.status || 'pendiente',                  // E: Estado
+            orderData.paymentMethod || 'efectivo',            // F: Pago_Metodo
+            orderData.paymentId || '',                        // G: Pago_ID
+            orderData.customerPhone || '',                    // H: Telefono
+            orderData.customerEmail || '',                    // I: email
             orderData.customerNotes || ''                     // J: Notas
         ];
 

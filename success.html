@@ -314,6 +314,7 @@
                 <h3>📋 Resumen de tu pedido:</h3>
                 <div class="customer-info">
                     <strong>👤 Cliente:</strong> ${orderData.customerName}<br>
+                    <strong>📧 Email:</strong> ${orderData.customerEmail}<br>
                     ${orderData.customerNotes ? `<strong>📝 Aclaraciones:</strong> ${orderData.customerNotes}<br>` : ''}
                     <strong>🕒 Fecha:</strong> ${new Date(orderData.timestamp).toLocaleString('es-AR')}
                 </div>
@@ -456,6 +457,7 @@
                 const orderToSave = {
                     customerName: orderData.customerName,
                     customerPhone: orderData.customerPhone || '',
+                    customerEmail: orderData.customerEmail || '',
                     customerNotes: orderData.customerNotes || '',
                     items: orderData.items,
                     total: orderData.total,
@@ -531,6 +533,7 @@
             
             // Información básica del cliente
             message += `*Cliente:* ${orderData.customerName}\n`;
+            message += `*Email:* ${orderData.customerEmail}\n`;
             message += `*Fecha:* ${new Date(orderData.timestamp).toLocaleString('es-AR')}\n`;
             
             // Agregar ID del pedido si existe

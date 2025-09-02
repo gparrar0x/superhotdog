@@ -610,10 +610,22 @@ async function goToPay() {
     }
     
     const name = document.getElementById('customer-name').value.trim();
+    const email = document.getElementById('customer-email').value.trim();
     const notes = document.getElementById('customer-notes').value.trim();
 
     if (!name) {
         alert('🚨 Por favor ingresa tu nombre');
+        return;
+    }
+    
+    if (!email) {
+        alert('🚨 Por favor ingresa tu email');
+        return;
+    }
+    
+    // Validar formato de email básico
+    if (!email.includes('@') || !email.includes('.')) {
+        alert('🚨 Por favor ingresa un email válido');
         return;
     }
 
@@ -641,6 +653,7 @@ async function goToPay() {
     // 💾 Guardar datos del pedido en localStorage para la página de éxito
     const orderData = {
         customerName: name,
+        customerEmail: email,
         customerNotes: notes,
         items: items,
         total: total,
@@ -658,7 +671,7 @@ async function goToPay() {
             items: items,
             payer: {
                 name: name,
-                email: "cliente@superhotdog.com" // Email ficticio
+                email: email // Email del cliente
             },
             back_urls: {
                 success: window.location.origin + "/success.html",
@@ -709,16 +722,29 @@ async function goToPay() {
 // 📱 ENVIAR PEDIDO POR WHATSAPP (función auxiliar)
 function sendWhatsApp() {
     const name = document.getElementById('customer-name').value.trim();
+    const email = document.getElementById('customer-email').value.trim();
     const notes = document.getElementById('customer-notes').value.trim();
 
     if (!name) {
         alert('🚨 Por favor ingresa tu nombre');
         return;
     }
+    
+    if (!email) {
+        alert('🚨 Por favor ingresa tu email');
+        return;
+    }
+    
+    // Validar formato de email básico
+    if (!email.includes('@') || !email.includes('.')) {
+        alert('🚨 Por favor ingresa un email válido');
+        return;
+    }
 
     // 📝 Construir mensaje para WhatsApp
     let message = `🌭🦸‍♂️ *NUEVO PEDIDO - SUPER HOT DOG* 💥\n\n`;
     message += `👤 *Cliente:* ${name}\n`;
+    message += `📧 *Email:* ${email}\n`;
     if (notes) message += `📝 *Aclaraciones:* ${notes}\n`;
     message += `\n📋 *PEDIDO:*\n`;
 
