@@ -132,7 +132,7 @@ exports.handler = async (event, context) => {
         }
 
         // Fetch both products and business information
-        const PRODUCTS_RANGE = 'Productos!A:F';
+        const PRODUCTS_RANGE = 'Productos!A:E';
         const INFO_RANGE = 'Informacion!A:C'; // Business information sheet
         
         const productsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${PRODUCTS_RANGE}?key=${API_KEY}`;
@@ -185,14 +185,26 @@ exports.handler = async (event, context) => {
             const row = rows[i];
             if (row && row[0]) { // Check if row has data
                 const category = row[3] || 'otros';
+                const availableValue = row[4];
+                
+                // Debug log for availability values
+                console.log(`Product "${row[0]}" availability value:`, JSON.stringify(availableValue), typeof availableValue);
+                
+                // More robust availability check: only FALSE if explicitly set to FALSE
+                let isAvailable = true;
+                if (availableValue) {
+                    const availableStr = String(availableValue).trim().toLowerCase();
+                    isAvailable = availableStr !== 'false';
+                }
+                
                 const product = {
                     id: i,
                     name: row[0] || '',
                     description: row[1] || '',
                     price: parseFloat(row[2]) || 0,
                     category: category,
-                    image: row[4] || '',
-                    available: row[5] !== 'FALSE' && row[5] !== false
+                    image: '',
+                    available: isAvailable
                 };
                 products.push(product);
                 
