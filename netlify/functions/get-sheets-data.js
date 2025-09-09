@@ -178,23 +178,33 @@ exports.handler = async (event, context) => {
         // Process the products data
         const rows = productsData.values || [];
         const products = [];
+        const categorySet = new Set();
 
         // Skip header row and process data
         for (let i = 1; i < rows.length; i++) {
             const row = rows[i];
             if (row && row[0]) { // Check if row has data
+                const category = row[3] || 'otros';
                 const product = {
                     id: i,
                     name: row[0] || '',
                     description: row[1] || '',
                     price: parseFloat(row[2]) || 0,
-                    category: row[3] || 'otros',
+                    category: category,
                     image: row[4] || '',
                     available: row[5] !== 'FALSE' && row[5] !== false
                 };
                 products.push(product);
+                
+                // Add category to set (only for available products)
+                if (product.available) {
+                    categorySet.add(category);
+                }
             }
         }
+
+        // Convert category set to sorted array
+        const categories = Array.from(categorySet).sort();
 
         return {
             statusCode: 200,
@@ -205,6 +215,7 @@ exports.handler = async (event, context) => {
             body: JSON.stringify({
                 success: true,
                 products: products,
+                categories: categories,
                 businessInfo: businessInfo,
                 lastUpdated: new Date().toISOString()
             })

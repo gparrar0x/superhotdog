@@ -74,6 +74,12 @@ async function loadProductsFromSheets() {
             // 🔄 Productos ya procesados desde la Netlify Function
             products = data.products;
             
+            // 📂 Actualizar categorías dinámicamente
+            if (data.categories) {
+                updateCategoryButtons(data.categories);
+                console.log('✅ Categorías dinámicas cargadas:', data.categories);
+            }
+            
             // 🏢 Cargar información del negocio
             if (data.businessInfo) {
                 businessInfo = data.businessInfo;
@@ -111,6 +117,74 @@ function refreshCatalog() {
     isLoading = true;
     showLoading();
     loadProductsFromSheets();
+}
+
+// 📂 ACTUALIZAR BOTONES DE CATEGORÍAS DINÁMICAMENTE
+function updateCategoryButtons(categories) {
+    const categoriesContainer = document.querySelector('.categories');
+    if (!categoriesContainer) return;
+    
+    // Iconos por categoría (con fallback genérico)
+    const categoryIcons = {
+        'super-dogs': '🌭',
+        'clasicos': '🥪',
+        'pollo': '🍗',
+        'acompañamientos': '🍟',
+        'bebidas': '🥤',
+        'combos': '💥',
+        'hamburguesas': '🍔',
+        'postres': '🍰',
+        'empanadas': '🥟',
+        'pizzas': '🍕',
+        'ensaladas': '🥗'
+    };
+    
+    // Función para obtener nombre mostrado de categoría
+    const getCategoryDisplayName = (category) => {
+        const displayNames = {
+            'super-dogs': 'Super Dogs',
+            'clasicos': 'Clásicos',
+            'acompañamientos': 'Acompañamientos',
+            'hamburguesas': 'Hamburguesas',
+            'empanadas': 'Empanadas'
+        };
+        return displayNames[category] || category.charAt(0).toUpperCase() + category.slice(1);
+    };
+    
+    // Crear HTML de botones
+    let buttonsHTML = '<button class="category-btn active" data-category="all">Todas</button>';
+    
+    categories.forEach(category => {
+        const displayName = getCategoryDisplayName(category);
+        buttonsHTML += `<button class="category-btn" data-category="${category}">${displayName}</button>`;
+    });
+    
+    // Actualizar contenedor
+    categoriesContainer.innerHTML = buttonsHTML;
+    
+    // Restablecer event listeners para los nuevos botones
+    setupCategoryListeners();
+}
+
+// 🎯 CONFIGURAR EVENT LISTENERS DE CATEGORÍAS
+function setupCategoryListeners() {
+    document.querySelectorAll('.category-btn[data-category]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentCategory = this.dataset.category;
+            renderProducts();
+        });
+    });
+}
+
+// 💰 FORMATEAR PRECIO SIN DECIMALES Y CON SEPARADOR DE MILES
+function formatPrice(price) {
+    // Redondear a entero y formatear con separador de miles (punto)
+    return Math.round(price).toLocaleString('es-AR', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    });
 }
 
 // 🏢 ACTUALIZAR INFORMACIÓN DEL NEGOCIO EN LA PÁGINA
@@ -320,17 +394,12 @@ function checkBusinessHours() {
         return;
     }
     
-    const { start, end } = timeRange;
+    // Verificar si el negocio está abierto según el tipo de horario
+    const isCurrentlyOpen = timeRange.isSplit ? 
+        isOpenDuringSplitSchedule(currentTime, timeRange) : 
+        isOpenDuringContinuousSchedule(currentTime, timeRange);
     
-    console.log(`🕐 Comparación detallada:`);
-    console.log(`   Hora actual: ${currentTime} (${Math.floor(currentTime/100)}:${(currentTime%100).toString().padStart(2,'0')})`);
-    console.log(`   Inicio: ${start} (${Math.floor(start/100)}:${(start%100).toString().padStart(2,'0')})`);
-    console.log(`   Fin: ${end} (${Math.floor(end/100)}:${(end%100).toString().padStart(2,'0')})`);
-    console.log(`   ¿Está abierto? ${currentTime >= start && currentTime <= end}`);
-    console.log(`   currentTime >= start: ${currentTime >= start}`);
-    console.log(`   currentTime <= end: ${currentTime <= end}`);
-    
-    if (currentTime >= start && currentTime <= end) {
+    if (isCurrentlyOpen) {
         setBusinessOpen();
     } else {
         const nextOpenTime = getNextOpenTime();
@@ -338,42 +407,119 @@ function checkBusinessHours() {
     }
 }
 
-// 🕐 PARSEAR RANGO DE HORARIOS (formato 24h)
+// 🕐 VERIFICAR SI ESTÁ ABIERTO DURANTE HORARIO CONTINUO
+function isOpenDuringContinuousSchedule(currentTime, timeRange) {
+    const { start, end } = timeRange;
+    
+    console.log(`🕐 Horario continuo - Comparación detallada:`);
+    console.log(`   Hora actual: ${currentTime} (${Math.floor(currentTime/100)}:${(currentTime%100).toString().padStart(2,'0')})`);
+    console.log(`   Inicio: ${start} (${Math.floor(start/100)}:${(start%100).toString().padStart(2,'0')})`);
+    console.log(`   Fin: ${end} (${Math.floor(end/100)}:${(end%100).toString().padStart(2,'0')})`);
+    
+    const isOpen = currentTime >= start && currentTime <= end;
+    console.log(`   ¿Está abierto? ${isOpen}`);
+    
+    return isOpen;
+}
+
+// 🕐 VERIFICAR SI ESTÁ ABIERTO DURANTE HORARIO PARTIDO
+function isOpenDuringSplitSchedule(currentTime, timeRange) {
+    const { morning, evening } = timeRange;
+    
+    console.log(`🕐 Horario partido - Comparación detallada:`);
+    console.log(`   Hora actual: ${currentTime} (${Math.floor(currentTime/100)}:${(currentTime%100).toString().padStart(2,'0')})`);
+    console.log(`   Mañana: ${morning.start}-${morning.end} (${Math.floor(morning.start/100)}:${(morning.start%100).toString().padStart(2,'0')} - ${Math.floor(morning.end/100)}:${(morning.end%100).toString().padStart(2,'0')})`);
+    console.log(`   Noche: ${evening.start}-${evening.end} (${Math.floor(evening.start/100)}:${(evening.start%100).toString().padStart(2,'0')} - ${Math.floor(evening.end/100)}:${(evening.end%100).toString().padStart(2,'0')})`);
+    
+    const isOpenMorning = currentTime >= morning.start && currentTime <= morning.end;
+    const isOpenEvening = currentTime >= evening.start && currentTime <= evening.end;
+    const isOpen = isOpenMorning || isOpenEvening;
+    
+    console.log(`   ¿Abierto en turno mañana? ${isOpenMorning}`);
+    console.log(`   ¿Abierto en turno noche? ${isOpenEvening}`);
+    console.log(`   ¿Está abierto? ${isOpen}`);
+    
+    return isOpen;
+}
+
+// 🕐 PARSEAR RANGO DE HORARIOS (formato 24h con soporte para horarios partidos)
 function parseTimeRange(schedule) {
     if (!schedule) {
         console.log(`⚠️ parseTimeRange: schedule es null/undefined`);
         return null;
     }
     
+    console.log(`🔍 parseTimeRange: parsing "${schedule}"`);
+    
+    // Verificar si es un horario partido (contiene "/")
+    if (schedule.includes('/')) {
+        console.log(`📋 Detected split schedule: "${schedule}"`);
+        const shifts = schedule.split('/');
+        
+        if (shifts.length !== 2) {
+            console.log(`❌ parseTimeRange: invalid split format - expected 2 shifts, got ${shifts.length}`);
+            return null;
+        }
+        
+        const morningShift = parseSingleTimeRange(shifts[0].trim());
+        const eveningShift = parseSingleTimeRange(shifts[1].trim());
+        
+        if (!morningShift || !eveningShift) {
+            console.log(`❌ parseTimeRange: failed to parse one or both shifts`);
+            return null;
+        }
+        
+        console.log(`✅ Split schedule parsed successfully:`);
+        console.log(`   Morning: ${morningShift.start} - ${morningShift.end}`);
+        console.log(`   Evening: ${eveningShift.start} - ${eveningShift.end}`);
+        
+        return { 
+            isSplit: true,
+            morning: morningShift,
+            evening: eveningShift
+        };
+    } else {
+        // Horario continuo tradicional
+        const singleRange = parseSingleTimeRange(schedule);
+        if (singleRange) {
+            return { 
+                isSplit: false,
+                start: singleRange.start,
+                end: singleRange.end
+            };
+        }
+        return null;
+    }
+}
+
+// 🕐 PARSEAR UN RANGO DE HORARIO SIMPLE
+function parseSingleTimeRange(scheduleStr) {
+    if (!scheduleStr) return null;
+    
     // Handle 24h format like "09:30-23:00" or "9:30–23:00" (with or without leading zeros)
     const timePattern = /(\d{1,2})(?::(\d{2}))?[\s]*[-–—][\s]*(\d{1,2})(?::(\d{2}))?/;
-    console.log(`🔍 parseTimeRange: testing 24h pattern against "${schedule}"`);
-    const match = schedule.match(timePattern);
+    console.log(`🔍 parseSingleTimeRange: testing pattern against "${scheduleStr}"`);
+    const match = scheduleStr.match(timePattern);
     
     if (!match) {
-        console.log(`❌ parseTimeRange: no match found for "${schedule}"`);
-        console.log(`   Pattern used: ${timePattern}`);
+        console.log(`❌ parseSingleTimeRange: no match found for "${scheduleStr}"`);
         return null;
     }
     
-    console.log(`✅ parseTimeRange: match found:`, match);
+    console.log(`✅ parseSingleTimeRange: match found:`, match);
     
     const startHour = parseInt(match[1]);
-    const startMin = match[2] ? parseInt(match[2]) : 0; // Default to 0 if no minutes
+    const startMin = match[2] ? parseInt(match[2]) : 0;
     
     const endHour = parseInt(match[3]);
-    const endMin = match[4] ? parseInt(match[4]) : 0; // Default to 0 if no minutes  
+    const endMin = match[4] ? parseInt(match[4]) : 0;
     
-    console.log(`📝 Parsed 24h format:`);
+    console.log(`📝 Parsed time range:`);
     console.log(`   Start: ${startHour}:${startMin.toString().padStart(2,'0')}`);
     console.log(`   End: ${endHour}:${endMin.toString().padStart(2,'0')}`);
     
     const start = startHour * 100 + startMin;
     const end = endHour * 100 + endMin;
-    
-    console.log(`📝 Final HHMM format:`);
-    console.log(`   Start: ${start}`);
-    console.log(`   End: ${end}`);
     
     return { start, end };
 }
@@ -418,11 +564,29 @@ function getNextOpenTime() {
             const argentinaTime = getArgentinaDate();
             const currentTime = argentinaTime.getHours() * 100 + argentinaTime.getMinutes();
             
-            if (currentTime < timeRange.start) {
-                // We can still open today
-                const startHour = Math.floor(timeRange.start / 100);
-                const startMin = timeRange.start % 100;
-                return `hoy a las ${startHour}:${startMin.toString().padStart(2, '0')}`;
+            if (timeRange.isSplit) {
+                // Para horarios partidos, verificar si podemos abrir en algún turno hoy
+                const { morning, evening } = timeRange;
+                
+                if (currentTime < morning.start) {
+                    // Podemos abrir en el turno de la mañana
+                    const startHour = Math.floor(morning.start / 100);
+                    const startMin = morning.start % 100;
+                    return `hoy a las ${startHour}:${startMin.toString().padStart(2, '0')}`;
+                } else if (currentTime > morning.end && currentTime < evening.start) {
+                    // Estamos entre turnos, podemos abrir en el turno de la noche
+                    const startHour = Math.floor(evening.start / 100);
+                    const startMin = evening.start % 100;
+                    return `hoy a las ${startHour}:${startMin.toString().padStart(2, '0')}`;
+                }
+            } else {
+                // Horario continuo tradicional
+                if (currentTime < timeRange.start) {
+                    // We can still open today
+                    const startHour = Math.floor(timeRange.start / 100);
+                    const startMin = timeRange.start % 100;
+                    return `hoy a las ${startHour}:${startMin.toString().padStart(2, '0')}`;
+                }
             }
         }
     }
@@ -438,9 +602,17 @@ function getNextOpenTime() {
         if (nextSchedule && !nextSchedule.toLowerCase().includes('cerrado')) {
             const timeRange = parseTimeRange(nextSchedule);
             if (timeRange) {
-                const startHour = Math.floor(timeRange.start / 100);
-                const startMin = timeRange.start % 100;
-                return `${nextDayName} a las ${startHour}:${startMin.toString().padStart(2, '0')}`;
+                if (timeRange.isSplit) {
+                    // Para horarios partidos, usar el primer turno (mañana)
+                    const startHour = Math.floor(timeRange.morning.start / 100);
+                    const startMin = timeRange.morning.start % 100;
+                    return `${nextDayName} a las ${startHour}:${startMin.toString().padStart(2, '0')}`;
+                } else {
+                    // Horario continuo tradicional
+                    const startHour = Math.floor(timeRange.start / 100);
+                    const startMin = timeRange.start % 100;
+                    return `${nextDayName} a las ${startHour}:${startMin.toString().padStart(2, '0')}`;
+                }
             }
         }
     }
@@ -450,15 +622,8 @@ function getNextOpenTime() {
 
 // 🎯 CONFIGURAR EVENT LISTENERS
 function setupEventListeners() {
-    // 📂 Botones de categorías
-    document.querySelectorAll('.category-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            currentCategory = this.dataset.category;
-            renderProducts();
-        });
-    });
+    // 📂 Botones de categorías (se configurarán dinámicamente)
+    setupCategoryListeners();
 
     // 🛒 Botón de pedido
     document.getElementById('order-btn').addEventListener('click', openModal);
@@ -504,7 +669,7 @@ function renderProducts() {
                     <h3 class="product-name">${product.name}</h3>
                     <p class="product-description">${product.description}</p>
                 </div>
-                <div class="product-price">$${product.price.toFixed(2)}</div>
+                <div class="product-price">$${formatPrice(product.price)}</div>
             </div>
             <div class="product-controls">
                 <div class="quantity-controls">
@@ -545,7 +710,7 @@ function updateCartDisplay() {
     }, 0);
 
     document.getElementById('cart-count').textContent = totalItems;
-    document.getElementById('cart-total').textContent = totalPrice.toFixed(2);
+    document.getElementById('cart-total').textContent = formatPrice(totalPrice);
     document.getElementById('order-btn').disabled = totalItems === 0;
     
     // 👁️ Mostrar/ocultar carrito fijo
@@ -578,7 +743,7 @@ function openModal() {
             summaryHTML += `
                 <div class="summary-item">
                     <span>${product.name} (x${qty})</span>
-                    <span>$${subtotal.toFixed(2)}</span>
+                    <span>$${formatPrice(subtotal)}</span>
                 </div>
             `;
         }
@@ -587,7 +752,7 @@ function openModal() {
     summaryHTML += `
         <div class="summary-item summary-total">
             <span>💰 TOTAL:</span>
-            <span>$${total.toFixed(2)}</span>
+            <span>$${formatPrice(total)}</span>
         </div>
     `;
 
@@ -754,11 +919,11 @@ function sendWhatsApp() {
         if (product) {
             const subtotal = product.price * qty;
             total += subtotal;
-            message += `• ${product.name} (x${qty}) - $${subtotal.toFixed(2)}\n`;
+            message += `• ${product.name} (x${qty}) - $${formatPrice(subtotal)}\n`;
         }
     });
 
-    message += `\n💰 *TOTAL: $${total.toFixed(2)}*\n\n`;
+    message += `\n💰 *TOTAL: $${formatPrice(total)}*\n\n`;
     
     // Usar información del negocio de Google Sheets si está disponible
     const businessName = businessInfo.name || BUSINESS_INFO.name;
