@@ -67,13 +67,12 @@ MP_ACCESS_TOKEN=your_mercadopago_token_here
 
 ## Google Sheets Structure
 
-### "Productos" Tab (A1:F)
+### "Productos" Tab (A1:E)
 - A: Nombre (Product Name)
 - B: Descripción (Description) 
 - C: Precio (Price - integer, no decimals)
 - D: Categoría (Category: super-dogs, clasicos, pollo, acompañamientos, bebidas, combos)
-- E: Imagen URL (Image URL)
-- F: Disponible (Available: TRUE/FALSE)
+- E: Disponible (Available: TRUE/FALSE)
 
 ### "Informacion" Tab (A1:B)
 - A: Campo (Field names: nombre, direccion, telefono, instagram, lunes-domingo)

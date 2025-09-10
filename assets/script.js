@@ -1037,13 +1037,13 @@ function showUpdateNotification() {
 ESTRUCTURA DE LA HOJA DE GOOGLE SHEETS:
 
 Fila 1 (Encabezados):
-A: Nombre | B: Descripción | C: Precio | D: Categoría | E: Imagen URL | F: Disponible
+A: Nombre | B: Descripción | C: Precio | D: Categoría | E: Disponible
 
 Ejemplos de datos (filas 2+):
-Super Dog Gigante | Hot dog de 34cm con salchicha ahumada especial | 12.99 | super-dogs | | TRUE
-Pollo Broaster | Pollo crispy con salsa especial | 8.99 | pollo | | TRUE
-Hot Dog Clásico | Salchicha tradicional con pan y salsas | 6.99 | clasicos | | TRUE
-Papas Super | Papas fritas gigantes para compartir | 4.99 | acompañamientos | | TRUE
-Combo Héroe | Super Dog + Papas + Bebida | 18.99 | combos | | TRUE
-Coca Cola | Gaseosa 500ml | 2.99 | bebidas | | TRUE
+Super Dog Gigante | Hot dog de 34cm con salchicha ahumada especial | 12.99 | super-dogs | TRUE
+Pollo Broaster | Pollo crispy con salsa especial | 8.99 | pollo | TRUE
+Hot Dog Clásico | Salchicha tradicional con pan y salsas | 6.99 | clasicos | TRUE
+Papas Super | Papas fritas gigantes para compartir | 4.99 | acompañamientos | TRUE
+Combo Héroe | Super Dog + Papas + Bebida | 18.99 | combos | TRUE
+Coca Cola | Gaseosa 500ml | 2.99 | bebidas | FALSE
 */

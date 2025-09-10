@@ -17,7 +17,7 @@ Aplicación web completa de catálogo digital para **Super Hot Dog**, el negocio
 - 📊 **Conectado a Google Sheets** (2 hojas: Productos + Información del negocio)
 - 🔄 **Actualización en tiempo real** - cambios instantáneos desde Google Sheets
 - 🗂️ **Categorías dinámicas** con filtros inteligentes
-- 🖼️ **Soporte para imágenes** de productos
+- ✅ **Control de disponibilidad** por producto (TRUE/FALSE)
 
 ### 💳 **Sistema de Pagos Completo**
 - 💳 **MercadoPago integrado** - pagos reales con tarjeta, efectivo y transferencia
@@ -59,12 +59,12 @@ Aplicación web completa de catálogo digital para **Super Hot Dog**, el negocio
 
 Crea una hoja de Google Sheets con **2 pestañas**:
 
-#### **Pestaña "Productos"** (A1:F):
+#### **Pestaña "Productos"** (A1:E):
 
-| A (Nombre) | B (Descripción) | C (Precio) | D (Categoría) | E (Imagen URL) | F (Disponible) |
-|------------|----------------|------------|---------------|----------------|----------------|
-| Super Dog Gigante | Hot dog de 34cm con salchicha especial | 2500 | super-dogs | https://... | TRUE |
-| Pollo Broaster | Pollo crispy con salsa especial | 1899 | pollo | https://... | TRUE |
+| A (Nombre) | B (Descripción) | C (Precio) | D (Categoría) | E (Disponible) |
+|------------|----------------|------------|---------------|----------------|
+| Super Dog Gigante | Hot dog de 34cm con salchicha especial | 2500 | super-dogs | TRUE |
+| Pollo Broaster | Pollo crispy con salsa especial | 1899 | pollo | TRUE |
 
 #### **Pestaña "Informacion"** (A1:B):
 
